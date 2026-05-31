@@ -26,19 +26,19 @@ const getAllRequests = async (req, res) => {
 
 const getStats = async (req, res) => {
   try {
-    const [totalUsers, totalRequests, completedRequests, pendingRequests] = await Promise.all([
+    const [totalUsers, premiumUsers, totalPrompts, totalRequests, completedRequests] = await Promise.all([
       User.count(),
+      User.count({ where: { is_premium: true } }),
+      Prompt.count({ where: { is_active: true } }),
       Request.count(),
       Request.count({ where: { status: 'completed' } }),
-      Request.count({ where: { status: 'pending' } }),
     ]);
-    res.json({ totalUsers, totalRequests, completedRequests, pendingRequests });
+    res.json({ totalUsers, premiumUsers, totalPrompts, totalRequests, completedRequests });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
 };
 
-// Prompt management
 const getPrompts = async (req, res) => {
   try {
     const prompts = await Prompt.findAll({ order: [['created_at', 'DESC']] });
@@ -50,8 +50,14 @@ const getPrompts = async (req, res) => {
 
 const createPrompt = async (req, res) => {
   try {
-    const { title, text, category } = req.body;
-    const prompt = await Prompt.create({ title, text, category, created_by: req.user.id });
+    const { title, text, negative_prompt, category, tags, thumbnail_url, images } = req.body;
+    const prompt = await Prompt.create({
+      title, text, negative_prompt, category,
+      tags: tags || [],
+      thumbnail_url: thumbnail_url || null,
+      images: images || [],
+      created_by: req.user.id,
+    });
     res.status(201).json(prompt);
   } catch (err) {
     res.status(500).json({ error: err.message });
@@ -60,10 +66,9 @@ const createPrompt = async (req, res) => {
 
 const updatePrompt = async (req, res) => {
   try {
-    const { id } = req.params;
-    const [updated] = await Prompt.update(req.body, { where: { id } });
+    const [updated] = await Prompt.update(req.body, { where: { id: req.params.id } });
     if (!updated) return res.status(404).json({ error: 'Prompt not found' });
-    res.json(await Prompt.findByPk(id));
+    res.json(await Prompt.findByPk(req.params.id));
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
@@ -91,4 +96,19 @@ const deleteUser = async (req, res) => {
   }
 };
 
-module.exports = { getAllUsers, getAllRequests, getStats, getPrompts, createPrompt, updatePrompt, deletePrompt, deleteUser };
+const togglePremium = async (req, res) => {
+  try {
+    const user = await User.findByPk(req.params.id);
+    if (!user) return res.status(404).json({ error: 'User not found' });
+    await user.update({ is_premium: !user.is_premium });
+    res.json({ id: user.id, is_premium: !user.is_premium });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+};
+
+module.exports = {
+  getAllUsers, getAllRequests, getStats,
+  getPrompts, createPrompt, updatePrompt, deletePrompt,
+  deleteUser, togglePremium,
+};

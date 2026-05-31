@@ -1,22 +1,20 @@
 const router = require('express').Router();
 const { authenticate } = require('../middlewares/auth');
 const upload = require('../middlewares/upload');
-const { generate } = require('../controllers/promptController');
-const { Prompt } = require('../models');
+const {
+  getPrompts, getTopPrompts, getTrending, getOnePerCategory,
+  getPromptById, recordClick, generate,
+} = require('../controllers/promptController');
 
-router.use(authenticate);
+// Public routes
+router.get('/', getPrompts);
+router.get('/top', getTopPrompts);
+router.get('/trending', getTrending);
+router.get('/by-category', getOnePerCategory);
+router.get('/:id', getPromptById);
+router.post('/:id/click', recordClick);
 
-// Get all active prompts
-router.get('/', async (req, res) => {
-  try {
-    const prompts = await Prompt.findAll({ where: { is_active: true } });
-    res.json(prompts);
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
-});
-
-// Generate: upload image + apply prompt
-router.post('/generate', upload.single('image'), generate);
+// Authenticated routes
+router.post('/generate', authenticate, upload.single('image'), generate);
 
 module.exports = router;

@@ -1,10 +1,17 @@
 const { Sequelize } = require('sequelize');
-const dbConfig = require('../../config/database');
 
-const env = process.env.NODE_ENV || 'development';
-const config = dbConfig[env];
+let sequelize;
 
-const sequelize = new Sequelize(config.database, config.username, config.password, config);
+if (process.env.DB_MODE === 'mock') {
+  // SQLite in-memory for testing
+  sequelize = new Sequelize('sqlite::memory:', { logging: false });
+} else {
+  // Supabase PostgreSQL
+  const dbConfig = require('../../config/database');
+  const env = process.env.NODE_ENV || 'development';
+  const config = dbConfig[env];
+  sequelize = new Sequelize(config.database, config.username, config.password, config);
+}
 
 // Import models
 const User = require('./User')(sequelize);

@@ -1,0 +1,78 @@
+.page { min-height: 100vh; display: flex; flex-direction: column; }
+
+.layout { display: grid; grid-template-columns: 220px 1fr; flex: 1; }
+
+.sidebar {
+  background: var(--pf-surface);
+  border-right: 1px solid var(--pf-border);
+  padding: 28px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.sidebarTitle {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--pf-text-3);
+  padding: 0 8px;
+  margin-bottom: 12px;
+}
+.navItem {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 9px 10px;
+  border-radius: 8px;
+  font-size: 13px;
+  color: var(--pf-text-2);
+  background: transparent;
+  border: 1px solid transparent;
+  text-align: left;
+  transition: all 0.15s;
+}
+.navItem:hover { background: var(--pf-elevated); color: var(--pf-text-1); }
+.navItemActive { background: var(--pf-accent-glow); color: var(--pf-text-1); border-color: rgba(108,99,255,0.25); }
+
+.main { padding: 32px; }
+.pageTitle { font-family: var(--font-display); font-size: 20px; font-weight: 700; margin-bottom: 24px; }
+
+.metricsGrid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; }
+.metricCard { background: var(--pf-surface); border: 1px solid var(--pf-border); border-radius: 10px; padding: 16px; }
+.metricLabel { font-size: 11px; color: var(--pf-text-3); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 6px; }
+.metricValue { font-family: var(--font-display); font-size: 26px; font-weight: 700; }
+
+.form { background: var(--pf-surface); border: 1px solid var(--pf-border); border-radius: 10px; padding: 24px; margin-bottom: 24px; }
+.formRow { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+.field { margin-bottom: 14px; }
+.label { font-size: 12px; color: var(--pf-text-2); margin-bottom: 5px; display: block; }
+.input {
+  width: 100%;
+  background: var(--pf-elevated);
+  border: 1px solid var(--pf-border-md);
+  border-radius: 8px;
+  padding: 9px 12px;
+  font-size: 13px;
+  color: var(--pf-text-1);
+  outline: none;
+}
+.input:focus { border-color: var(--pf-accent); }
+.textarea { width: 100%; background: var(--pf-elevated); border: 1px solid var(--pf-border-md); border-radius: 8px; padding: 9px 12px; font-size: 13px; color: var(--pf-text-1); outline: none; min-height: 80px; resize: vertical; }
+.formActions { display: flex; gap: 10px; margin-top: 4px; }
+.btnPrimary { padding: 9px 20px; background: var(--pf-accent); color: #fff; border: none; border-radius: 8px; font-size: 13px; font-weight: 600; }
+.btnGhost { padding: 9px 20px; background: transparent; color: var(--pf-text-2); border: 1px solid var(--pf-border-md); border-radius: 8px; font-size: 13px; }
+
+.tableWrap { background: var(--pf-surface); border: 1px solid var(--pf-border); border-radius: 10px; overflow: hidden; }
+.table { width: 100%; border-collapse: collapse; }
+.table th { text-align: left; font-size: 11px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: var(--pf-text-3); padding: 10px 20px; border-bottom: 1px solid var(--pf-border); }
+.table td { padding: 12px 20px; font-size: 13px; color: var(--pf-text-2); border-bottom: 1px solid rgba(255,255,255,0.04); }
+.table tr:last-child td { border-bottom: none; }
+.tdBold { color: var(--pf-text-1) !important; font-weight: 500; }
+
+.pill { font-size: 10px; font-weight: 600; padding: 3px 9px; border-radius: 100px; background: var(--pf-elevated); color: var(--pf-text-3); text-transform: capitalize; }
+.pillLive { font-size: 10px; font-weight: 600; padding: 3px 9px; border-radius: 100px; background: rgba(52,211,153,0.12); color: var(--pf-success); }
+.pillDraft { font-size: 10px; font-weight: 600; padding: 3px 9px; border-radius: 100px; background: var(--pf-elevated); color: var(--pf-text-3); }
+
+.actions { display: flex; gap: 6px; }
+.actBtn { font-size: 11px; padding: 4px 10px; border-radius: 5px; border: 1px solid var(--pf-border-md); color: var(--pf-text-2); background: transparent; }
