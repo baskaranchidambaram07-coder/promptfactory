@@ -2,62 +2,61 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
-import PromptCard from '../components/PromptCard';
 import api from '../api';
 import styles from './Home.module.css';
 
-const CATEGORIES = ['travel', 'music', 'invite', 'love'];
+const CAT_ICONS = {
+  Couples: '💑', Travel: '✈️', Music: '🎵', Invite: '🎉',
+  Love: '❤️', Portrait: '🎨', Nature: '🌿', Other: '✨',
+};
 
-const CAT_ICONS = { travel: '✈️', music: '🎵', invite: '🎉', love: '❤️' };
+const CAT_GRADIENTS = {
+  Couples: 'linear-gradient(135deg,#FF6B9D,#FF8FB5)',
+  Travel:  'linear-gradient(135deg,#4D9FFF,#00D9FF)',
+  Music:   'linear-gradient(135deg,#8A74F9,#A68EFF)',
+  Invite:  'linear-gradient(135deg,#00E5A0,#00D9FF)',
+  Love:    'linear-gradient(135deg,#FF6B9D,#FF8FB5)',
+  Portrait:'linear-gradient(135deg,#FF8A5B,#FF6B9D)',
+  Nature:  'linear-gradient(135deg,#00E5A0,#4D9FFF)',
+};
+
+const getGradient = (cat) => CAT_GRADIENTS[cat] || 'linear-gradient(135deg,#8A74F9,#FF6B9D)';
 
 export default function Home() {
   const navigate = useNavigate();
   const [search, setSearch] = useState('');
-  const [selectedCategory, setSelectedCategory] = useState(null);
-  const [allCategoryMode, setAllCategoryMode] = useState(false);
-  const [topMode, setTopMode] = useState(false);
-
+  const [topCategories, setTopCategories] = useState([]);
+  const [selectedCat, setSelectedCat] = useState(null);
+  const [catPrompts, setCatPrompts] = useState([]);
+  const [loadingCat, setLoadingCat] = useState(false);
   const [trending, setTrending] = useState([]);
-  const [categoryPrompts, setCategoryPrompts] = useState([]);
-  const [onePerCategory, setOnePerCategory] = useState([]);
+  const [topMode, setTopMode] = useState(false);
   const [topPrompts, setTopPrompts] = useState([]);
 
-  // Load 4 trending for right panel
+  // Load top 5 categories and 4 trending on mount
   useEffect(() => {
+    api.get('/prompt/categories').then((r) => setTopCategories(r.data)).catch(() => {});
     api.get('/prompt/trending?limit=4').then((r) => setTrending(r.data)).catch(() => {});
   }, []);
 
-  // Secondary section logic
-  useEffect(() => {
-    if (topMode) {
-      api.get('/prompt/top?limit=20').then((r) => setTopPrompts(r.data)).catch(() => {});
-      return;
-    }
-    if (allCategoryMode) {
-      api.get('/prompt/by-category').then((r) => setOnePerCategory(r.data)).catch(() => {});
-      return;
-    }
-    if (selectedCategory) {
-      api.get(`/prompt?category=${selectedCategory}`).then((r) => setCategoryPrompts(r.data)).catch(() => {});
-    }
-  }, [selectedCategory, allCategoryMode, topMode]);
-
-  const handleCategorySelect = (cat) => {
-    setSelectedCategory(cat);
-    setAllCategoryMode(false);
+  // Fetch prompts when category selected
+  const handleCategoryClick = async (cat) => {
+    if (selectedCat === cat) { setSelectedCat(null); setCatPrompts([]); return; }
+    setSelectedCat(cat);
     setTopMode(false);
+    setLoadingCat(true);
+    try {
+      const r = await api.get(`/prompt?category=${cat}`);
+      setCatPrompts(r.data);
+    } catch {}
+    setLoadingCat(false);
   };
 
-  const handleAllCategory = () => {
-    setAllCategoryMode(true);
-    setSelectedCategory(null);
-    setTopMode(false);
-  };
-
-  const handleTopPrompts = () => {
+  const handleTopPrompts = async () => {
     setTopMode(true);
-    setAllCategoryMode(false);
-    setSelectedCategory(null);
+    setSelectedCat(null);
+    const r = await api.get('/prompt/top?limit=20').catch(() => ({ data: [] }));
+    setTopPrompts(r.data);
   };
 
   const handleSearch = (e) => {
@@ -65,38 +64,34 @@ export default function Home() {
     if (search.trim()) navigate(`/search?q=${encodeURIComponent(search.trim())}`);
   };
 
-  const showSecondary = selectedCategory || allCategoryMode || topMode;
-
   return (
     <div className={styles.page}>
       <Navbar />
 
-      {/* ── Primary 3-column section ── */}
       <div className={styles.threeCol}>
 
-        {/* Left — categories */}
+        {/* ── LEFT: Top 5 Categories ── */}
         <aside className={styles.left}>
-          <p className={styles.sectionLabel}>Categories</p>
-          {CATEGORIES.map((cat) => (
+          <div className={styles.sectionLabel}>🔥 Top Categories</div>
+          {topCategories.map((item, i) => (
             <button
-              key={cat}
-              className={`${styles.catBtn} ${selectedCategory === cat ? styles.catBtnActive : ''}`}
-              onClick={() => handleCategorySelect(cat)}
+              key={item.category}
+              className={`${styles.catBtn} ${selectedCat === item.category ? styles.catBtnActive : ''}`}
+              style={selectedCat === item.category ? { background: getGradient(item.category) } : {}}
+              onClick={() => handleCategoryClick(item.category)}
             >
-              <span>{CAT_ICONS[cat]}</span>
-              <span className={styles.catName}>{cat.charAt(0).toUpperCase() + cat.slice(1)}</span>
+              <span className={styles.catRank}>#{i + 1}</span>
+              <span className={styles.catIcon}>{CAT_ICONS[item.category] || '✨'}</span>
+              <div className={styles.catInfo}>
+                <span className={styles.catName}>{item.category}</span>
+                <span className={styles.catCount}>{item.total_used.toLocaleString()} uses</span>
+              </div>
+              {selectedCat === item.category && <span className={styles.catArrow}>▾</span>}
             </button>
           ))}
-          <button
-            className={`${styles.catBtn} ${allCategoryMode ? styles.catBtnActive : ''} ${styles.allCatBtn}`}
-            onClick={handleAllCategory}
-          >
-            <span>🗂️</span>
-            <span className={styles.catName}>All Category</span>
-          </button>
         </aside>
 
-        {/* Middle — search + video */}
+        {/* ── MIDDLE: Video + Search ── */}
         <main className={styles.middle}>
           <div className={styles.videoPlaceholder}>
             <span className={styles.videoIcon}>▶</span>
@@ -109,77 +104,88 @@ export default function Home() {
             </svg>
             <input
               className={styles.searchBar}
-              placeholder="Search prompts — try 'travel sunset' or 'love portrait'"
+              placeholder="Search prompts — try 'couples portrait' or 'travel sunset'…"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
             />
           </form>
         </main>
 
-        {/* Right — trending images + explore button */}
+        {/* ── RIGHT: Trending + Explore ── */}
         <aside className={styles.right}>
-          <p className={styles.sectionLabel}>Trending Now</p>
+          <div className={styles.sectionLabel}>⚡ Trending Now</div>
           <div className={styles.trendingGrid}>
             {trending.map((p) => (
-              <div
-                key={p.id}
-                className={styles.trendingThumb}
-                onClick={() => navigate(`/prompt/${p.id}`)}
-              >
-                {p.thumbnail_url
-                  ? <img src={p.thumbnail_url} alt={p.title} />
+              <div key={p.PromptId} className={styles.trendingThumb} onClick={() => navigate(`/prompt/${p.PromptId}`)}>
+                {p.FromURL
+                  ? <img src={p.FromURL} alt={p.Categories} />
                   : <span className={styles.thumbPlaceholder}>🖼️</span>
                 }
-                <span className={styles.thumbTitle}>{p.title}</span>
+                <span className={styles.thumbTitle}>{p.Categories} #{p.PromptId}</span>
               </div>
             ))}
           </div>
           <button className={styles.exploreBtn} onClick={handleTopPrompts}>
-            Explore Top 10 Prompts →
+            Explore Top 20 Prompts →
           </button>
         </aside>
       </div>
 
-      {/* ── Secondary section ── */}
-      {showSecondary && (
+      {/* ── SECONDARY: Category Prompts or Top Prompts ── */}
+      {(selectedCat || topMode) && (
         <section className={styles.secondary}>
-          {topMode && (
-            <>
-              <div className={styles.secHeader}>
-                <span className={styles.secTitle}>🏆 Top 20 Prompts</span>
-              </div>
-              <div className={styles.grid}>
-                {topPrompts.map((p, i) => <PromptCard key={p.id} prompt={p} rank={i + 1} />)}
-              </div>
-            </>
-          )}
+          <div className={styles.secHeader}>
+            <span className={styles.secTitle}>
+              {topMode
+                ? '🏆 Top 20 Prompts'
+                : `${CAT_ICONS[selectedCat] || '✨'} ${selectedCat} Prompts`}
+            </span>
+            <span className={styles.secCount}>
+              {topMode ? topPrompts.length : catPrompts.length} results
+            </span>
+          </div>
 
-          {allCategoryMode && (
-            <>
-              <div className={styles.secHeader}>
-                <span className={styles.secTitle}>🗂️ All Categories</span>
-              </div>
-              <div className={styles.grid}>
-                {onePerCategory.map((p) => <PromptCard key={p.id} prompt={p} />)}
-              </div>
-            </>
-          )}
+          {loadingCat && <div className={styles.loading}>Loading…</div>}
 
-          {selectedCategory && !allCategoryMode && !topMode && (
-            <>
-              <div className={styles.secHeader}>
-                <span className={styles.secTitle}>
-                  {CAT_ICONS[selectedCategory]} {selectedCategory.charAt(0).toUpperCase() + selectedCategory.slice(1)} Prompts
-                </span>
+          <div className={styles.promptList}>
+            {(topMode ? topPrompts : catPrompts).map((p, i) => (
+              <div
+                key={p.PromptId}
+                className={styles.promptRow}
+                onClick={() => navigate(`/prompt/${p.PromptId}`)}
+              >
+                <div className={styles.promptRowRank}>#{i + 1}</div>
+                <div
+                  className={styles.promptRowThumb}
+                  style={{ background: getGradient(p.Categories) }}
+                >
+                  {p.FromURL
+                    ? <img src={p.FromURL} alt={p.Categories} />
+                    : <span>🖼️</span>
+                  }
+                </div>
+                <div className={styles.promptRowBody}>
+                  <div className={styles.promptRowTitle}>
+                    <span className={styles.promptRowBadge} style={{ background: getGradient(p.Categories) }}>
+                      {p.Categories}
+                    </span>
+                    Prompt #{p.PromptId}
+                  </div>
+                  <div className={styles.promptRowPreview}>
+                    {(p.promptdescription || '').replace(/"/g, '').slice(0, 100)}…
+                  </div>
+                </div>
+                <div className={styles.promptRowMeta}>
+                  <span className={styles.promptRowUses}>▲ {(p.usedcount || 0).toLocaleString()}</span>
+                  <button className={styles.promptRowBtn}>Try it →</button>
+                </div>
               </div>
-              <div className={styles.grid}>
-                {categoryPrompts.map((p, i) => <PromptCard key={p.id} prompt={p} rank={i + 1} />)}
-                {categoryPrompts.length === 0 && (
-                  <p className={styles.empty}>No prompts found in this category yet.</p>
-                )}
-              </div>
-            </>
-          )}
+            ))}
+
+            {!loadingCat && !topMode && catPrompts.length === 0 && (
+              <div className={styles.empty}>No prompts found in {selectedCat} yet.</div>
+            )}
+          </div>
         </section>
       )}
 

@@ -1,8 +1,16 @@
 const bcrypt = require('bcryptjs');
-const { User, Request } = require('../models');
+const supabase = require('../supabase');
 
 const getProfile = async (req, res) => {
-  res.json(req.user);
+  try {
+    const { data, error } = await supabase
+      .from('users').select('id,name,email,role,avatar,is_premium,daily_generations_used,created_at')
+      .eq('id', req.user.id).single();
+    if (error) throw error;
+    res.json(data);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
 };
 
 const updateProfile = async (req, res) => {
@@ -11,10 +19,10 @@ const updateProfile = async (req, res) => {
     const updates = {};
     if (name) updates.name = name;
     if (password) updates.password = await bcrypt.hash(password, 12);
-
-    await User.update(updates, { where: { id: req.user.id } });
-    const updated = await User.findByPk(req.user.id, { attributes: { exclude: ['password'] } });
-    res.json(updated);
+    const { data, error } = await supabase.from('users').update(updates).eq('id', req.user.id)
+      .select('id,name,email,role,avatar,is_premium').single();
+    if (error) throw error;
+    res.json(data);
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
@@ -22,11 +30,10 @@ const updateProfile = async (req, res) => {
 
 const getUserRequests = async (req, res) => {
   try {
-    const requests = await Request.findAll({
-      where: { user_id: req.user.id },
-      order: [['created_at', 'DESC']],
-    });
-    res.json(requests);
+    const { data, error } = await supabase.from('requests').select('*')
+      .eq('user_id', req.user.id).order('created_at', { ascending: false });
+    if (error) throw error;
+    res.json(data);
   } catch (err) {
     res.status(500).json({ error: err.message });
   }

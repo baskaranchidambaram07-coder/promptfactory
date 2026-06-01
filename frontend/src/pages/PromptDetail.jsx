@@ -10,7 +10,6 @@ export default function PromptDetail() {
   const { id } = useParams();
   const { user } = useAuth();
   const [prompt, setPrompt] = useState(null);
-  const [activeImg, setActiveImg] = useState(0);
   const [copied, setCopied] = useState(false);
   const [generating, setGenerating] = useState(false);
   const [result, setResult] = useState(null);
@@ -33,7 +32,7 @@ export default function PromptDetail() {
     try {
       const form = new FormData();
       form.append('image', file);
-      form.append('prompt_id', prompt.id);
+      form.append('prompt_id', prompt.PromptId);
       const res = await api.post('/prompt/generate', form);
       setResult(res.data);
     } catch (err) {
@@ -45,8 +44,8 @@ export default function PromptDetail() {
 
   if (!prompt) return <div className={styles.loading}>Loading…</div>;
 
+  const promptText = (prompt.promptdescription || '').replace(/^"|"$/g, '').trim();
   const dailyUsed = user?.daily_generations_used || 0;
-  const dailyLimit = user?.is_premium ? '∞' : 3;
 
   return (
     <div className={styles.page}>
@@ -57,32 +56,32 @@ export default function PromptDetail() {
         <div className={styles.left}>
           <div className={styles.breadcrumb}>
             <Link to="/">Explore</Link> <span>/</span>
-            <span style={{ textTransform: 'capitalize' }}>{prompt.category}</span> <span>/</span>
-            {prompt.title}
+            <span>{prompt.Categories}</span> <span>/</span>
+            Prompt #{prompt.PromptId}
           </div>
 
-          <h1 className={styles.h1}>{prompt.title}</h1>
+          <h1 className={styles.h1}>{prompt.Categories} Prompt #{prompt.PromptId}</h1>
 
           <div className={styles.tags}>
-            <span className={styles.tagAccent} style={{ textTransform: 'capitalize' }}>{prompt.category}</span>
-            <span className={styles.tagAccent}>▲ {(prompt.click_count || 0).toLocaleString()} clicks</span>
-            {(prompt.tags || []).map((t) => <span key={t} className={styles.tag}>{t}</span>)}
+            <span className={styles.tagAccent}>{prompt.Categories}</span>
+            <span className={styles.tagAccent}>▲ {(prompt.usedcount || 0).toLocaleString()} uses</span>
           </div>
 
           {/* Reference images */}
-          {prompt.images?.length > 0 && (
+          {(prompt.FromURL || prompt.ToURL) && (
             <div className={styles.refSection}>
               <div className={styles.boxLabel}>Reference Images</div>
               <div className={styles.refGrid}>
-                {prompt.images.map((img, i) => (
-                  <div
-                    key={i}
-                    className={`${styles.refImg} ${activeImg === i ? styles.refImgActive : ''}`}
-                    onClick={() => setActiveImg(i)}
-                  >
-                    <img src={img} alt={`ref-${i}`} />
+                {prompt.FromURL && (
+                  <div className={styles.refImg}>
+                    <img src={prompt.FromURL} alt="From" />
                   </div>
-                ))}
+                )}
+                {prompt.ToURL && (
+                  <div className={styles.refImg}>
+                    <img src={prompt.ToURL} alt="To" />
+                  </div>
+                )}
               </div>
             </div>
           )}
@@ -90,20 +89,11 @@ export default function PromptDetail() {
           {/* Full prompt */}
           <div className={styles.promptBox}>
             <div className={styles.boxLabel}>Full Prompt</div>
-            <button className={styles.copyBtn} onClick={() => copy(prompt.text)}>
+            <button className={styles.copyBtn} onClick={() => copy(promptText)}>
               {copied ? '✓ Copied' : '⎘ Copy'}
             </button>
-            <p className={styles.promptText}>{prompt.text}</p>
+            <p className={styles.promptText}>{promptText}</p>
           </div>
-
-          {/* Negative prompt */}
-          {prompt.negative_prompt && (
-            <div className={styles.promptBox}>
-              <div className={styles.boxLabel}>Negative Prompt</div>
-              <button className={styles.copyBtn} onClick={() => copy(prompt.negative_prompt)}>⎘ Copy</button>
-              <p className={styles.promptText} style={{ color: 'var(--pf-coral)' }}>{prompt.negative_prompt}</p>
-            </div>
-          )}
         </div>
 
         {/* Right — generate panel */}
@@ -111,7 +101,6 @@ export default function PromptDetail() {
           <div className={styles.rightTitle}>Generate Image</div>
           <div className={styles.rightSub}>Use this prompt to create a unique image</div>
 
-          {/* Pipeline display */}
           {user?.is_premium ? (
             <div className={styles.premiumBanner}>
               <span>⭐</span>
@@ -130,7 +119,6 @@ export default function PromptDetail() {
             </div>
           )}
 
-          {/* Upload */}
           <label className={styles.uploadBox}>
             <input type="file" accept="image/*" hidden onChange={(e) => setFile(e.target.files[0])} />
             {file ? (
@@ -144,20 +132,15 @@ export default function PromptDetail() {
             )}
           </label>
 
-          <button
-            className={styles.generateBtn}
-            onClick={handleGenerate}
-            disabled={generating}
-          >
+          <button className={styles.generateBtn} onClick={handleGenerate} disabled={generating}>
             {generating ? '⏳ Generating…' : '⚡ Generate Image'}
           </button>
 
-          {/* Daily usage */}
           {user && !user.is_premium && (
             <div className={styles.usageWrap}>
               <div className={styles.usageLabel}>
                 <span>Daily usage</span>
-                <span>{dailyUsed} / {dailyLimit} used</span>
+                <span>{dailyUsed} / 3 used</span>
               </div>
               <div className={styles.usageBar}>
                 <div className={styles.usageFill} style={{ width: `${(dailyUsed / 3) * 100}%` }} />
@@ -165,7 +148,6 @@ export default function PromptDetail() {
             </div>
           )}
 
-          {/* Result */}
           {result && (
             <div className={styles.resultBox}>
               <div className={styles.boxLabel}>Generated Output</div>

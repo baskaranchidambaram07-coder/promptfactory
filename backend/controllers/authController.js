@@ -1,29 +1,28 @@
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
-const { User } = require('../models');
+const supabase = require('../supabase');
 
 const generateToken = (user) =>
   jwt.sign({ id: user.id, role: user.role }, process.env.JWT_SECRET, {
     expiresIn: process.env.JWT_EXPIRES_IN || '7d',
   });
 
-const safeUser = (user) => ({
-  id: user.id,
-  name: user.name,
-  email: user.email,
-  role: user.role,
-  avatar: user.avatar,
-  is_premium: user.is_premium,
+const safeUser = (u) => ({
+  id: u.id, name: u.name, email: u.email,
+  role: u.role, avatar: u.avatar, is_premium: u.is_premium,
 });
 
 const register = async (req, res) => {
   try {
     const { name, email, password } = req.body;
-    const exists = await User.findOne({ where: { email } });
-    if (exists) return res.status(409).json({ error: 'Email already registered' });
+    const { data: existing } = await supabase.from('users').select('id').eq('email', email).single();
+    if (existing) return res.status(409).json({ error: 'Email already registered' });
 
     const hashed = await bcrypt.hash(password, 12);
-    const user = await User.create({ name, email, password: hashed });
+    const { data: user, error } = await supabase
+      .from('users').insert({ name, email, password: hashed }).select().single();
+    if (error) throw error;
+
     res.status(201).json({ token: generateToken(user), user: safeUser(user) });
   } catch (err) {
     res.status(500).json({ error: err.message });
@@ -33,7 +32,7 @@ const register = async (req, res) => {
 const login = async (req, res) => {
   try {
     const { email, password } = req.body;
-    const user = await User.findOne({ where: { email } });
+    const { data: user } = await supabase.from('users').select('*').eq('email', email).single();
     if (!user || !user.password) return res.status(401).json({ error: 'Invalid credentials' });
 
     const valid = await bcrypt.compare(password, user.password);
@@ -45,22 +44,26 @@ const login = async (req, res) => {
   }
 };
 
-// Google OAuth — called after frontend verifies Google token and sends profile
 const googleAuth = async (req, res) => {
   try {
     const { google_id, email, name, avatar } = req.body;
     if (!google_id || !email) return res.status(400).json({ error: 'google_id and email required' });
 
-    let user = await User.findOne({ where: { google_id } });
+    let { data: user } = await supabase.from('users').select('*').eq('google_id', google_id).single();
     if (!user) {
-      user = await User.findOne({ where: { email } });
-      if (user) {
-        await user.update({ google_id, avatar: avatar || user.avatar });
+      let { data: byEmail } = await supabase.from('users').select('*').eq('email', email).single();
+      if (byEmail) {
+        const { data: updated } = await supabase
+          .from('users').update({ google_id, avatar: avatar || byEmail.avatar })
+          .eq('id', byEmail.id).select().single();
+        user = updated;
       } else {
-        user = await User.create({ name, email, google_id, avatar, password: null });
+        const { data: created, error } = await supabase
+          .from('users').insert({ name, email, google_id, avatar }).select().single();
+        if (error) throw error;
+        user = created;
       }
     }
-
     res.json({ token: generateToken(user), user: safeUser(user) });
   } catch (err) {
     res.status(500).json({ error: err.message });
