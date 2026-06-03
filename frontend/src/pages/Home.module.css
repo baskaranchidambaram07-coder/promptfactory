@@ -157,6 +157,7 @@
 .videoPlaceholder {
   position: absolute;
   inset: 0;
+  bottom: 80px;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -194,6 +195,8 @@
   width: 88%;
   max-width: 560px;
   z-index: 10;
+  display: flex;
+  align-items: center;
 }
 
 .searchIcon {
@@ -205,6 +208,7 @@
   height: 18px;
   stroke: var(--pf-purple-light);
   z-index: 2;
+  pointer-events: none;
 }
 
 .searchBar {
@@ -212,7 +216,7 @@
   background: rgba(15,15,35,0.5);
   border: 1px solid rgba(138,116,249,0.35);
   border-radius: 14px;
-  padding: 16px 24px 16px 50px;
+  padding: 16px 44px 16px 50px;
   font-size: 15px;
   color: var(--pf-text-1);
   outline: none;
@@ -228,6 +232,28 @@
   background: rgba(15,15,35,0.7);
   box-shadow: 0 0 0 3px rgba(138,116,249,0.2), 0 8px 32px rgba(138,116,249,0.3);
 }
+
+.searchClear {
+  position: absolute;
+  right: 14px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: rgba(138,116,249,0.2);
+  border: none;
+  color: var(--pf-text-2);
+  font-size: 13px;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  z-index: 3;
+  transition: background 0.2s;
+}
+
+.searchClear:hover { background: rgba(138,116,249,0.4); }
 
 /* ── RIGHT ── */
 .right {
@@ -430,6 +456,7 @@
   display: flex;
   align-items: center;
   gap: 8px;
+  flex-wrap: wrap;
 }
 
 .promptRowBadge {
@@ -441,6 +468,22 @@
   text-transform: uppercase;
   letter-spacing: 0.05em;
   flex-shrink: 0;
+}
+
+.promptRowTags {
+  display: flex;
+  gap: 5px;
+  flex-wrap: wrap;
+}
+
+.promptRowTag {
+  font-size: 10px;
+  padding: 2px 8px;
+  border-radius: 100px;
+  background: rgba(138,116,249,0.15);
+  border: 1px solid rgba(138,116,249,0.25);
+  color: var(--pf-purple-light);
+  font-weight: 600;
 }
 
 .promptRowPreview {
@@ -492,4 +535,11 @@
   border-radius: 16px;
   border: 2px dashed rgba(138,116,249,0.2);
   font-size: 14px;
+  line-height: 2;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 24px;
 }

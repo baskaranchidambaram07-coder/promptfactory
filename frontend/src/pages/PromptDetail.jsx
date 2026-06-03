@@ -67,19 +67,21 @@ export default function PromptDetail() {
             <span className={styles.tagAccent}>▲ {(prompt.usedcount || 0).toLocaleString()} uses</span>
           </div>
 
-          {/* Reference images */}
+          {/* Reference images - FromURL and ToURL from Cloudinary */}
           {(prompt.FromURL || prompt.ToURL) && (
             <div className={styles.refSection}>
               <div className={styles.boxLabel}>Reference Images</div>
               <div className={styles.refGrid}>
                 {prompt.FromURL && (
                   <div className={styles.refImg}>
-                    <img src={prompt.FromURL} alt="From" />
+                    <img src={prompt.FromURL} alt="Before" onError={(e)=>{e.target.style.display='none'}} />
+                    <span className={styles.refLabel}>Before</span>
                   </div>
                 )}
                 {prompt.ToURL && (
                   <div className={styles.refImg}>
-                    <img src={prompt.ToURL} alt="To" />
+                    <img src={prompt.ToURL} alt="After" onError={(e)=>{e.target.style.display='none'}} />
+                    <span className={styles.refLabel}>After</span>
                   </div>
                 )}
               </div>

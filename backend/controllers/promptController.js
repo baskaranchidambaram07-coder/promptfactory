@@ -2,6 +2,25 @@ const supabase = require('../supabase');
 const { processImage } = require('../services/aiService');
 const { sendWebhook } = require('../services/webhookService');
 
+// GET /api/prompt/search?q=keyword — search in tags, Categories, promptdescription
+const searchPrompts = async (req, res) => {
+  try {
+    const q = (req.query.q || '').trim();
+    if (!q) return res.json([]);
+
+    const { data, error } = await supabase
+      .from('PromptCollection')
+      .select('*')
+      .or(`tags.ilike.%${q}%,Categories.ilike.%${q}%,promptdescription.ilike.%${q}%`)
+      .order('usedcount', { ascending: false });
+
+    if (error) throw error;
+    res.json(data);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+};
+
 // GET /api/prompt/categories — top 5 categories by total usedcount
 const getTopCategories = async (req, res) => {
   try {
@@ -197,4 +216,4 @@ const generate = async (req, res) => {
   }
 };
 
-module.exports = { getTopCategories, getPrompts, getTopPrompts, getTrending, getOnePerCategory, getPromptById, recordClick, generate };
+module.exports = { searchPrompts, getTopCategories, getPrompts, getTopPrompts, getTrending, getOnePerCategory, getPromptById, recordClick, generate };
