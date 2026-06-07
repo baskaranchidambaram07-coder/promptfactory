@@ -2,22 +2,14 @@ PORT=5000
 JWT_SECRET=your_super_secret_jwt_key_change_in_production
 JWT_EXPIRES_IN=7d
 
-# PostgreSQL
-DB_HOST=localhost
-DB_PORT=5432
-DB_NAME=promptfactory
-DB_USER=postgres
-DB_PASSWORD=postgres
+# Supabase
+SUPABASE_URL=https://cmrdshqokbyseaprkono.supabase.co
+SUPABASE_ANON_KEY=sb_publishable_Af_izDyEPHO9LqhYQ6MNUw_uedP2onm
+SUPABASE_SERVICE_KEY=sb_publishable_Af_izDyEPHO9LqhYQ6MNUw_uedP2onm
 
-# Storage (local or s3)
+# Storage
 STORAGE_TYPE=local
 UPLOAD_DIR=uploads
-
-# AWS S3 (optional)
-AWS_ACCESS_KEY_ID=your_aws_key
-AWS_SECRET_ACCESS_KEY=your_aws_secret
-AWS_REGION=us-east-1
-S3_BUCKET=promptfactory-uploads
 
 # Webhook
 WEBHOOK_SECRET=webhook_secret_key
