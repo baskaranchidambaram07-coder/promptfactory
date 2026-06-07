@@ -16,3 +16,36 @@ WEBHOOK_SECRET=webhook_secret_key
 
 # AI Service (simulated)
 AI_SERVICE_URL=http://localhost:5000/api/ai/simulate
+
+
+------------------
+
+https://wnyqowvxfaznuqwvijbv.supabase.co
+
+Database
+Password: VrkCouI5wZ7ULEL5
+
+Project url
+https://cmrdshqokbyseaprkono.supabase.co
+
+Public key
+sb_publishable_Af_izDyEPHO9LqhYQ6MNUw_uedP2onm
+
+Direct connection string
+postgresql://postgres:[YOUR-PASSWORD]@db.cmrdshqokbyseaprkono.supabase.co:5432/postgres
+
+Cli cmd
+supabase login
+supabase init
+supabase link --project-ref cmrdshqokbyseaprkono
+
+Table name:
+PromptCollection
+
+------------------------
+Cloud name	dsfvvasfs
+API key	953157463257512
+API secret	Om3JXjdxvhvBJC-sCMpgIcpanHA
+API environment variable	CLOUDINARY_URL=cloudinary://953157463257512:Om3JXjdxvhvBJC-sCMpgIcpanHA@dsfvvasfs
+
+From 
