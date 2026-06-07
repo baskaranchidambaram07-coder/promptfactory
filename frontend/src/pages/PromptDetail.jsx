@@ -4,7 +4,7 @@ import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import { useAuth } from '../hooks/useAuth';
 import api from '../api';
-import styles from './PromptDetail.module.css';
+import styles from '../styles/pages.module.css';
 
 export default function PromptDetail() {
   const { id } = useParams();
@@ -56,12 +56,15 @@ export default function PromptDetail() {
         {/* Left */}
         <div className={styles.left}>
           <div className={styles.breadcrumb}>
-            <Link to="/">Explore</Link> <span>/</span>
+            <Link to="/explore">Explore</Link> <span>/</span>
             <span>{prompt.Categories}</span> <span>/</span>
-            Prompt #{prompt.PromptId}
+            Style #{prompt.PromptId}
           </div>
 
-          <h1 className={styles.h1}>{prompt.Categories} Prompt #{prompt.PromptId}</h1>
+          <h1 className={styles.detailTitle}>
+            <span className={styles.detailTitleCat}>{prompt.Categories}</span>
+            {' '}Style #{prompt.PromptId}
+          </h1>
 
           <div className={styles.tags}>
             <span className={styles.tagAccent}>{prompt.Categories}</span>

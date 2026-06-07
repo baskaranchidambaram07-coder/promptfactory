@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
-import styles from './Contact.module.css';
+import styles from '../styles/pages.module.css';
 
 export default function Contact() {
   const [form, setForm] = useState({ name: '', email: '', subject: 'General Enquiry', message: '' });
@@ -24,7 +24,7 @@ export default function Contact() {
         <p className={styles.sub}>Our team typically responds within 2 business hours.</p>
       </div>
 
-      <div className={styles.grid}>
+      <div className={styles.contactGrid}>
         <div>
           <h3 className={styles.colTitle}>Contact Channels</h3>
           {[

@@ -62,6 +62,17 @@ create table if not exists webhooks (
   updated_at timestamptz not null default now()
 );
 
+-- LLM Keys table (managed via Admin → LLM Keys panel)
+create table if not exists llm_keys (
+  id uuid primary key default uuid_generate_v4(),
+  provider text not null unique,   -- 'openai' | 'anthropic' | 'stability' | 'replicate' | 'custom'
+  api_key text not null,
+  is_active boolean not null default true,
+  notes text,
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now()
+);
+
 -- Seed sample admin user (password: admin123)
 insert into users (name, email, password, role, is_premium)
 values ('Admin User', 'admin@promptfactory.io', '$2a$12$LQV37MX7lVWmJiYdQEmZTOZsOOsvdKsbC4n4HOwpBIrngMXXXXXX', 'admin', true)

@@ -1,20 +1,31 @@
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
+import { useTheme } from '../App';
 import styles from './Navbar.module.css';
 
 export default function Navbar() {
   const { user, logout } = useAuth();
+  const { theme, toggleTheme } = useTheme();
   const navigate = useNavigate();
 
   return (
     <nav className={styles.nav}>
       <Link to="/" className={styles.logo}>Prompt<span>Factory</span></Link>
       <div className={styles.links}>
-        <Link to="/" className={styles.link}>Explore</Link>
+        <Link to="/explore" className={styles.link}>Explore</Link>
+        <Link to="/categories" className={styles.link}>Categories</Link>
         <Link to="/video" className={styles.link}>Video</Link>
         <Link to="/contact" className={styles.link}>Contact</Link>
       </div>
       <div className={styles.cta}>
+        <button
+          className={styles.themeToggle}
+          onClick={toggleTheme}
+          aria-label="Toggle theme"
+          title={theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'}
+        >
+          {theme === 'dark' ? '☀️' : '🌙'}
+        </button>
         {user ? (
           <>
             {user.is_premium && <span className={styles.premiumBadge}>⭐ Premium</span>}

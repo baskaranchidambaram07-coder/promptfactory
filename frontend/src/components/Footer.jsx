@@ -12,7 +12,7 @@ export default function Footer() {
         <Link to="/legal/refund" className={styles.link}>Refund Policy</Link>
         <Link to="/video" className={styles.link}>Video — Coming Soon</Link>
       </div>
-      <span className={styles.copy}>© 2025 PromptFactory Inc.</span>
+      <span className={styles.copy}>© {new Date().getFullYear()} PromptFactory Inc.</span>
     </footer>
   );
 }

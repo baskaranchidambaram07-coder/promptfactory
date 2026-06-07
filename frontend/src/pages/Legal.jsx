@@ -1,12 +1,12 @@
-import { useParams, Link, useNavigate } from 'react-router-dom';
+import { useParams, Link } from 'react-router-dom';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
-import styles from './Legal.module.css';
+import s from '../styles/pages.module.css';
 
 const PAGES = {
   terms: {
     title: 'Terms & Conditions',
-    updated: 'June 14, 2025',
+    updated: 'June 06, 2026',
     sections: [
       { h: 'Acceptance of Terms', p: 'By accessing PromptFactory you agree to be bound by these Terms. If you do not agree, do not use the service.' },
       { h: 'Use of Service', p: 'You may use PromptFactory to browse, copy, and generate images from curated prompts. You may not resell, scrape, or redistribute prompt content without written permission.' },
@@ -17,7 +17,7 @@ const PAGES = {
   },
   privacy: {
     title: 'Privacy Policy',
-    updated: 'June 14, 2025',
+    updated: 'June 06, 2026',
     sections: [
       { h: 'Data We Collect', p: 'Account info (name, email, avatar via Google OAuth), usage data (prompts viewed, searches, generations), and device info (browser, IP).' },
       { h: 'How We Use Your Data', p: 'To authenticate your account, enforce daily limits, rank prompts by engagement, and send optional product updates.' },
@@ -28,7 +28,7 @@ const PAGES = {
   },
   refund: {
     title: 'Refund & Return Policy',
-    updated: 'June 14, 2025',
+    updated: 'June 06, 2026',
     sections: [
       { h: 'Digital Product Policy', p: 'PromptFactory sells digital subscriptions. Due to the nature of digital goods, all sales are final once the premium tier is activated.' },
       { h: 'Eligibility for Refund', p: 'Refunds may be granted within 48 hours of purchase if the premium features were not used. Contact support@promptfactory.io with your order details.' },
@@ -40,28 +40,27 @@ const PAGES = {
 
 export default function Legal() {
   const { slug } = useParams();
-  const navigate = useNavigate();
   const page = PAGES[slug] || PAGES.terms;
 
   return (
-    <div className={styles.page}>
+    <div className={s.page}>
       <Navbar />
-      <div className={styles.layout}>
-        <nav className={styles.nav}>
-          <div className={styles.navLabel}>Legal</div>
+      <div className={s.legalLayout}>
+        <nav className={s.legalNav}>
+          <div className={s.legalNavLabel}>Legal</div>
           {Object.entries(PAGES).map(([key, val]) => (
-            <Link key={key} to={`/legal/${key}`} className={`${styles.navItem} ${slug === key ? styles.navItemActive : ''}`}>
+            <Link key={key} to={`/legal/${key}`} className={`${s.legalNavItem} ${slug === key ? s.legalNavItemActive : ''}`}>
               {val.title}
             </Link>
           ))}
         </nav>
-        <div className={styles.content}>
-          <h1 className={styles.h1}>{page.title}</h1>
-          <p className={styles.updated}>Last updated: {page.updated}</p>
-          {page.sections.map((s, i) => (
-            <div key={i} className={styles.section}>
-              <h3>{i + 1}. {s.h}</h3>
-              <p>{s.p}</p>
+        <div className={s.legalContent}>
+          <h1 className={s.h1}>{page.title}</h1>
+          <p className={s.updated}>Last updated: {page.updated}</p>
+          {page.sections.map((sec, i) => (
+            <div key={i} className={s.section}>
+              <h3>{i + 1}. {sec.h}</h3>
+              <p>{sec.p}</p>
             </div>
           ))}
         </div>
