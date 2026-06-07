@@ -17,6 +17,7 @@ export default function PromptDetail() {
 
   useEffect(() => {
     api.get(`/prompt/${id}`).then((r) => setPrompt(r.data)).catch(() => {});
+    api.post(`/prompt/${id}/click`).catch(() => {});
   }, [id]);
 
   const copy = (text) => {
