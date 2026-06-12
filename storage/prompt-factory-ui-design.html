@@ -1,0 +1,2513 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Prompt Factory — Enterprise UI Design System</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet" />
+<style>
+  :root {
+    --pf-obsidian:    #0A0B0F;
+    --pf-void:        #12141A;
+    --pf-surface:     #1A1D26;
+    --pf-elevated:    #21253A;
+    --pf-border:      rgba(255,255,255,0.08);
+    --pf-border-md:   rgba(255,255,255,0.14);
+    --pf-accent:      #6C63FF;
+    --pf-accent-glow: rgba(108,99,255,0.25);
+    --pf-gold:        #F5C842;
+    --pf-gold-dim:    rgba(245,200,66,0.15);
+    --pf-teal:        #00D4B4;
+    --pf-teal-dim:    rgba(0,212,180,0.12);
+    --pf-coral:       #FF6B6B;
+    --pf-coral-dim:   rgba(255,107,107,0.12);
+    --pf-sky:         #4FC3F7;
+    --pf-sky-dim:     rgba(79,195,247,0.12);
+    --pf-text-1:      #F0F1F5;
+    --pf-text-2:      #A8ACBD;
+    --pf-text-3:      #636780;
+    --pf-success:     #34D399;
+    --pf-warn:        #FBBF24;
+    --font-display:   'Syne', sans-serif;
+    --font-body:      'DM Sans', sans-serif;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--pf-obsidian);
+    color: var(--pf-text-1);
+    font-family: var(--font-body);
+    font-size: 14px;
+    line-height: 1.6;
+  }
+
+  /* ── Doc wrapper ── */
+  .doc-wrap {
+    max-width: 1280px;
+    margin: 0 auto;
+    padding: 48px 32px 80px;
+  }
+
+  /* ── Doc header ── */
+  .doc-header {
+    text-align: center;
+    padding-bottom: 56px;
+    border-bottom: 1px solid var(--pf-border);
+    margin-bottom: 72px;
+  }
+  .doc-badge {
+    display: inline-block;
+    font-family: var(--font-display);
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--pf-accent);
+    background: var(--pf-accent-glow);
+    border: 1px solid rgba(108,99,255,0.3);
+    border-radius: 100px;
+    padding: 5px 16px;
+    margin-bottom: 24px;
+  }
+  .doc-title {
+    font-family: var(--font-display);
+    font-size: 52px;
+    font-weight: 800;
+    letter-spacing: -0.03em;
+    line-height: 1.1;
+    background: linear-gradient(135deg, #F0F1F5 0%, #6C63FF 60%, #00D4B4 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    margin-bottom: 16px;
+  }
+  .doc-subtitle {
+    color: var(--pf-text-2);
+    font-size: 16px;
+    font-weight: 300;
+    max-width: 540px;
+    margin: 0 auto 32px;
+  }
+  .doc-meta {
+    display: flex;
+    justify-content: center;
+    gap: 32px;
+    font-size: 13px;
+    color: var(--pf-text-3);
+  }
+  .doc-meta span { display: flex; align-items: center; gap: 6px; }
+  .dot { width: 6px; height: 6px; border-radius: 50%; background: var(--pf-success); display: inline-block; }
+
+  /* ── Page section ── */
+  .page-section {
+    margin-bottom: 96px;
+  }
+  .page-label {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin-bottom: 32px;
+  }
+  .page-num {
+    font-family: var(--font-display);
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.15em;
+    color: var(--pf-accent);
+    background: var(--pf-accent-glow);
+    border: 1px solid rgba(108,99,255,0.25);
+    padding: 4px 12px;
+    border-radius: 100px;
+  }
+  .page-title {
+    font-family: var(--font-display);
+    font-size: 22px;
+    font-weight: 700;
+    color: var(--pf-text-1);
+  }
+  .phase-pill {
+    font-size: 11px;
+    font-weight: 600;
+    padding: 3px 10px;
+    border-radius: 100px;
+    letter-spacing: 0.08em;
+  }
+  .phase-1 { background: var(--pf-teal-dim); color: var(--pf-teal); border: 1px solid rgba(0,212,180,0.25); }
+  .phase-2 { background: var(--pf-gold-dim); color: var(--pf-gold); border: 1px solid rgba(245,200,66,0.25); }
+  .page-desc { color: var(--pf-text-2); font-size: 13px; margin-top: 4px; }
+
+  /* ── Screen frame ── */
+  .screen {
+    background: var(--pf-void);
+    border: 1px solid var(--pf-border-md);
+    border-radius: 16px;
+    overflow: hidden;
+    box-shadow: 0 32px 80px rgba(0,0,0,0.5), 0 0 0 1px rgba(255,255,255,0.04) inset;
+  }
+
+  /* ── Browser chrome ── */
+  .browser-bar {
+    background: var(--pf-surface);
+    border-bottom: 1px solid var(--pf-border);
+    padding: 10px 16px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .browser-dots { display: flex; gap: 6px; }
+  .browser-dots span { width: 10px; height: 10px; border-radius: 50%; }
+  .bd-red   { background: #FF6B6B; }
+  .bd-warn  { background: #FBBF24; }
+  .bd-green { background: #34D399; }
+  .browser-url {
+    flex: 1;
+    background: var(--pf-elevated);
+    border: 1px solid var(--pf-border);
+    border-radius: 6px;
+    padding: 5px 12px;
+    font-size: 12px;
+    color: var(--pf-text-3);
+    font-family: 'DM Mono', monospace;
+  }
+
+  /* ── Navbar ── */
+  .pf-nav {
+    background: rgba(10,11,15,0.95);
+    border-bottom: 1px solid var(--pf-border);
+    padding: 14px 40px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    backdrop-filter: blur(12px);
+  }
+  .pf-logo {
+    font-family: var(--font-display);
+    font-size: 20px;
+    font-weight: 800;
+    letter-spacing: -0.02em;
+  }
+  .pf-logo span { color: var(--pf-accent); }
+  .nav-links { display: flex; align-items: center; gap: 28px; }
+  .nav-link { font-size: 13px; color: var(--pf-text-2); cursor: pointer; }
+  .nav-link:hover, .nav-link.active { color: var(--pf-text-1); }
+  .nav-cta {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+  }
+  .btn {
+    font-family: var(--font-body);
+    font-size: 13px;
+    font-weight: 500;
+    padding: 8px 18px;
+    border-radius: 8px;
+    cursor: pointer;
+    border: none;
+    transition: all 0.15s;
+  }
+  .btn-ghost {
+    background: transparent;
+    color: var(--pf-text-2);
+    border: 1px solid var(--pf-border-md);
+  }
+  .btn-primary {
+    background: var(--pf-accent);
+    color: #fff;
+    border: 1px solid rgba(108,99,255,0.4);
+  }
+  .btn-gold {
+    background: var(--pf-gold);
+    color: #0A0B0F;
+    font-weight: 600;
+  }
+  .btn-teal {
+    background: var(--pf-teal);
+    color: #0A0B0F;
+    font-weight: 600;
+  }
+  .btn-sm { padding: 6px 12px; font-size: 12px; }
+  .btn-outline-accent {
+    background: var(--pf-accent-glow);
+    color: var(--pf-accent);
+    border: 1px solid rgba(108,99,255,0.35);
+  }
+
+  /* ── Hero section ── */
+  .hero {
+    padding: 80px 40px 64px;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+  }
+  .hero::before {
+    content: '';
+    position: absolute;
+    top: -80px; left: 50%; transform: translateX(-50%);
+    width: 600px; height: 400px;
+    background: radial-gradient(ellipse, rgba(108,99,255,0.15) 0%, transparent 70%);
+    pointer-events: none;
+  }
+  .hero-eyebrow {
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--pf-teal);
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+  }
+  .hero-eyebrow::before, .hero-eyebrow::after {
+    content: '';
+    width: 40px;
+    height: 1px;
+    background: var(--pf-teal);
+    opacity: 0.4;
+  }
+  .hero-h1 {
+    font-family: var(--font-display);
+    font-size: 54px;
+    font-weight: 800;
+    line-height: 1.05;
+    letter-spacing: -0.03em;
+    margin-bottom: 20px;
+  }
+  .hero-h1 em {
+    font-style: normal;
+    background: linear-gradient(90deg, var(--pf-accent), var(--pf-teal));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  .hero-sub {
+    color: var(--pf-text-2);
+    font-size: 17px;
+    font-weight: 300;
+    max-width: 520px;
+    margin: 0 auto 40px;
+  }
+
+  /* ── Search bar ── */
+  .search-wrap {
+    max-width: 620px;
+    margin: 0 auto 48px;
+    position: relative;
+  }
+  .search-bar {
+    width: 100%;
+    background: var(--pf-surface);
+    border: 1px solid var(--pf-border-md);
+    border-radius: 12px;
+    padding: 16px 60px 16px 52px;
+    font-size: 15px;
+    color: var(--pf-text-1);
+    font-family: var(--font-body);
+    outline: none;
+    box-shadow: 0 0 0 0 transparent;
+    transition: border-color 0.2s, box-shadow 0.2s;
+  }
+  .search-bar::placeholder { color: var(--pf-text-3); }
+  .search-icon {
+    position: absolute;
+    left: 18px; top: 50%; transform: translateY(-50%);
+    width: 18px; height: 18px; opacity: 0.45;
+    fill: none; stroke: var(--pf-text-1); stroke-width: 2; stroke-linecap: round;
+  }
+  .search-kbd {
+    position: absolute;
+    right: 14px; top: 50%; transform: translateY(-50%);
+    background: var(--pf-elevated);
+    border: 1px solid var(--pf-border-md);
+    border-radius: 5px;
+    padding: 3px 7px;
+    font-size: 11px;
+    color: var(--pf-text-3);
+    font-family: monospace;
+  }
+
+  /* ── Category tabs ── */
+  .cat-tabs {
+    display: flex;
+    justify-content: center;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+  .cat-tab {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 18px;
+    border-radius: 100px;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    border: 1px solid var(--pf-border-md);
+    background: var(--pf-surface);
+    color: var(--pf-text-2);
+    transition: all 0.15s;
+  }
+  .cat-tab.active {
+    background: var(--pf-accent-glow);
+    border-color: rgba(108,99,255,0.4);
+    color: var(--pf-text-1);
+  }
+  .cat-tab .tab-dot {
+    width: 6px; height: 6px; border-radius: 50%;
+  }
+  .td-trending { background: var(--pf-accent); }
+  .td-evergreen { background: var(--pf-teal); }
+  .td-retro     { background: var(--pf-gold); }
+  .td-candid    { background: var(--pf-coral); }
+
+  /* ── Stats row ── */
+  .stats-row {
+    display: flex;
+    justify-content: center;
+    gap: 40px;
+    padding: 32px 40px;
+    border-top: 1px solid var(--pf-border);
+    border-bottom: 1px solid var(--pf-border);
+  }
+  .stat-item { text-align: center; }
+  .stat-num {
+    font-family: var(--font-display);
+    font-size: 24px;
+    font-weight: 700;
+    color: var(--pf-text-1);
+  }
+  .stat-num span { color: var(--pf-accent); }
+  .stat-lbl { font-size: 12px; color: var(--pf-text-3); margin-top: 3px; }
+
+  /* ── Section header ── */
+  .sec-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 28px 40px 20px;
+  }
+  .sec-title {
+    font-family: var(--font-display);
+    font-size: 18px;
+    font-weight: 700;
+  }
+  .sec-title span { color: var(--pf-accent); }
+  .sec-link { font-size: 12px; color: var(--pf-accent); cursor: pointer; }
+
+  /* ── Prompt grid ── */
+  .prompt-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 16px;
+    padding: 0 40px 40px;
+  }
+  .prompt-card {
+    background: var(--pf-surface);
+    border: 1px solid var(--pf-border);
+    border-radius: 12px;
+    overflow: hidden;
+    cursor: pointer;
+    transition: border-color 0.2s, transform 0.2s;
+    position: relative;
+  }
+  .prompt-card:hover {
+    border-color: var(--pf-border-md);
+    transform: translateY(-2px);
+  }
+  .card-rank {
+    position: absolute;
+    top: 8px; left: 8px;
+    background: rgba(10,11,15,0.85);
+    border: 1px solid var(--pf-border-md);
+    border-radius: 6px;
+    padding: 3px 8px;
+    font-size: 11px;
+    font-weight: 700;
+    font-family: var(--font-display);
+    color: var(--pf-gold);
+    backdrop-filter: blur(8px);
+  }
+  .card-badge {
+    position: absolute;
+    top: 8px; right: 8px;
+    border-radius: 100px;
+    padding: 3px 8px;
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+  }
+  .badge-trending { background: var(--pf-accent-glow); color: var(--pf-accent); border: 1px solid rgba(108,99,255,0.3); }
+  .badge-evergreen { background: var(--pf-teal-dim); color: var(--pf-teal); border: 1px solid rgba(0,212,180,0.25); }
+  .badge-retro { background: var(--pf-gold-dim); color: var(--pf-gold); border: 1px solid rgba(245,200,66,0.25); }
+  .badge-candid { background: var(--pf-coral-dim); color: var(--pf-coral); border: 1px solid rgba(255,107,107,0.25); }
+  .card-img {
+    width: 100%;
+    height: 150px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 40px;
+  }
+  .ci-1 { background: linear-gradient(135deg, #1A1D26, #21253A); }
+  .ci-2 { background: linear-gradient(135deg, #1A2030, #0D1A2E); }
+  .ci-3 { background: linear-gradient(135deg, #1A1520, #251030); }
+  .ci-4 { background: linear-gradient(135deg, #0D2020, #101A1A); }
+  .ci-5 { background: linear-gradient(135deg, #201A10, #2A2010); }
+  .ci-6 { background: linear-gradient(135deg, #201015, #2A1020); }
+  .ci-7 { background: linear-gradient(135deg, #151A20, #1A2530); }
+  .ci-8 { background: linear-gradient(135deg, #1C1820, #221825); }
+
+  /* ── Image placeholder SVG shapes ── */
+  .img-ph { width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; }
+  .card-body { padding: 14px; }
+  .card-title {
+    font-family: var(--font-display);
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--pf-text-1);
+    margin-bottom: 6px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .card-prompt {
+    font-size: 11px;
+    color: var(--pf-text-3);
+    margin-bottom: 10px;
+    line-height: 1.5;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+  .card-tags { display: flex; gap: 5px; flex-wrap: wrap; margin-bottom: 10px; }
+  .tag {
+    font-size: 10px;
+    padding: 2px 7px;
+    border-radius: 100px;
+    border: 1px solid var(--pf-border);
+    color: var(--pf-text-3);
+  }
+  .card-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding-top: 10px;
+    border-top: 1px solid var(--pf-border);
+  }
+  .card-clicks { font-size: 11px; color: var(--pf-text-3); display: flex; align-items: center; gap: 4px; }
+  .card-btn {
+    font-size: 11px;
+    font-weight: 600;
+    padding: 5px 12px;
+    border-radius: 6px;
+    background: var(--pf-accent-glow);
+    color: var(--pf-accent);
+    border: 1px solid rgba(108,99,255,0.3);
+    cursor: pointer;
+  }
+
+  /* ── Prompt Detail Page ── */
+  .detail-layout {
+    display: grid;
+    grid-template-columns: 1fr 420px;
+    min-height: 480px;
+  }
+  .detail-left {
+    padding: 40px;
+    border-right: 1px solid var(--pf-border);
+  }
+  .detail-right { padding: 40px; }
+  .detail-breadcrumb {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 12px;
+    color: var(--pf-text-3);
+    margin-bottom: 24px;
+  }
+  .detail-breadcrumb a { color: var(--pf-accent); }
+  .detail-breadcrumb span { opacity: 0.4; }
+  .detail-h1 {
+    font-family: var(--font-display);
+    font-size: 30px;
+    font-weight: 800;
+    letter-spacing: -0.02em;
+    margin-bottom: 12px;
+    line-height: 1.2;
+  }
+  .detail-tags { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 24px; }
+  .detail-tag {
+    font-size: 11px;
+    padding: 4px 10px;
+    border-radius: 100px;
+    border: 1px solid var(--pf-border-md);
+    color: var(--pf-text-2);
+  }
+  .detail-tag.accent { background: var(--pf-accent-glow); color: var(--pf-accent); border-color: rgba(108,99,255,0.3); }
+  .ref-images {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+    margin-bottom: 28px;
+  }
+  .ref-img {
+    aspect-ratio: 1;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid var(--pf-border);
+    font-size: 24px;
+    cursor: pointer;
+    transition: border-color 0.15s;
+    overflow: hidden;
+  }
+  .ref-img.active { border-color: var(--pf-accent); box-shadow: 0 0 0 2px var(--pf-accent-glow); }
+  .prompt-box {
+    background: var(--pf-surface);
+    border: 1px solid var(--pf-border-md);
+    border-radius: 10px;
+    padding: 16px;
+    margin-bottom: 16px;
+    position: relative;
+  }
+  .prompt-box-label {
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--pf-text-3);
+    margin-bottom: 8px;
+  }
+  .prompt-text {
+    font-size: 13px;
+    color: var(--pf-text-1);
+    line-height: 1.7;
+  }
+  .copy-btn {
+    position: absolute;
+    top: 12px; right: 12px;
+    background: var(--pf-elevated);
+    border: 1px solid var(--pf-border-md);
+    border-radius: 6px;
+    padding: 5px 8px;
+    font-size: 11px;
+    color: var(--pf-text-2);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+  .detail-right-title {
+    font-family: var(--font-display);
+    font-size: 15px;
+    font-weight: 700;
+    margin-bottom: 6px;
+    color: var(--pf-text-1);
+  }
+  .detail-right-sub { font-size: 12px; color: var(--pf-text-3); margin-bottom: 20px; }
+
+  /* Pipeline stages */
+  .pipeline {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 20px;
+  }
+  .pipe-stage {
+    flex: 1;
+    background: var(--pf-surface);
+    border: 1px solid var(--pf-border);
+    border-radius: 8px;
+    padding: 10px 8px;
+    text-align: center;
+  }
+  .pipe-icon { font-size: 18px; margin-bottom: 4px; }
+  .pipe-name { font-size: 10px; font-weight: 600; color: var(--pf-text-2); }
+  .pipe-model { font-size: 9px; color: var(--pf-text-3); margin-top: 2px; }
+  .pipe-stage.active { border-color: rgba(108,99,255,0.4); background: var(--pf-accent-glow); }
+  .pipe-arrow {
+    display: flex;
+    align-items: center;
+    color: var(--pf-text-3);
+    font-size: 14px;
+  }
+  .premium-banner {
+    background: linear-gradient(135deg, rgba(245,200,66,0.08), rgba(245,200,66,0.04));
+    border: 1px solid rgba(245,200,66,0.2);
+    border-radius: 10px;
+    padding: 14px;
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .premium-icon { font-size: 22px; }
+  .premium-text { flex: 1; }
+  .premium-title { font-size: 13px; font-weight: 600; color: var(--pf-gold); }
+  .premium-desc { font-size: 11px; color: var(--pf-text-3); margin-top: 2px; }
+  .generate-btn {
+    width: 100%;
+    padding: 14px;
+    border-radius: 10px;
+    font-size: 14px;
+    font-weight: 700;
+    font-family: var(--font-display);
+    cursor: pointer;
+    border: none;
+    letter-spacing: 0.02em;
+    background: linear-gradient(135deg, var(--pf-accent), #8B83FF);
+    color: #fff;
+  }
+  .usage-bar-wrap {
+    margin-top: 12px;
+  }
+  .usage-label {
+    display: flex;
+    justify-content: space-between;
+    font-size: 11px;
+    color: var(--pf-text-3);
+    margin-bottom: 5px;
+  }
+  .usage-bar {
+    height: 4px;
+    background: var(--pf-elevated);
+    border-radius: 100px;
+    overflow: hidden;
+  }
+  .usage-fill {
+    height: 100%;
+    border-radius: 100px;
+    background: var(--pf-accent);
+  }
+
+  /* ── Auth Page ── */
+  .auth-wrap {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    min-height: 480px;
+  }
+  .auth-left {
+    background: linear-gradient(135deg, rgba(108,99,255,0.12), rgba(0,212,180,0.06));
+    border-right: 1px solid var(--pf-border);
+    padding: 60px 48px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
+  .auth-right {
+    padding: 60px 48px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
+  .auth-feature {
+    display: flex;
+    align-items: flex-start;
+    gap: 14px;
+    margin-bottom: 24px;
+  }
+  .auth-feature-icon {
+    width: 36px; height: 36px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+    flex-shrink: 0;
+  }
+  .afi-1 { background: var(--pf-accent-glow); }
+  .afi-2 { background: var(--pf-teal-dim); }
+  .afi-3 { background: var(--pf-gold-dim); }
+  .auth-feature-title { font-size: 13px; font-weight: 600; color: var(--pf-text-1); }
+  .auth-feature-desc { font-size: 12px; color: var(--pf-text-3); margin-top: 2px; }
+  .auth-form-title {
+    font-family: var(--font-display);
+    font-size: 26px;
+    font-weight: 800;
+    margin-bottom: 6px;
+  }
+  .auth-form-sub { font-size: 13px; color: var(--pf-text-3); margin-bottom: 28px; }
+  .google-btn {
+    width: 100%;
+    padding: 12px;
+    border-radius: 8px;
+    background: var(--pf-surface);
+    border: 1px solid var(--pf-border-md);
+    color: var(--pf-text-1);
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    font-family: var(--font-body);
+  }
+  .google-g {
+    width: 20px; height: 20px;
+    background: #fff;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 12px; font-weight: 700;
+  }
+  .divider {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin: 20px 0;
+    color: var(--pf-text-3);
+    font-size: 12px;
+  }
+  .divider::before, .divider::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--pf-border);
+  }
+  .form-field { margin-bottom: 14px; }
+  .form-label { font-size: 12px; color: var(--pf-text-2); margin-bottom: 5px; display: block; }
+  .form-input {
+    width: 100%;
+    background: var(--pf-surface);
+    border: 1px solid var(--pf-border-md);
+    border-radius: 8px;
+    padding: 10px 14px;
+    font-size: 13px;
+    color: var(--pf-text-1);
+    font-family: var(--font-body);
+    outline: none;
+  }
+  .form-input.focus { border-color: var(--pf-accent); box-shadow: 0 0 0 3px var(--pf-accent-glow); }
+  .form-input::placeholder { color: var(--pf-text-3); }
+  .form-check { display: flex; align-items: center; gap: 8px; font-size: 12px; color: var(--pf-text-3); margin-bottom: 18px; }
+  .checkbox { width: 14px; height: 14px; border: 1px solid var(--pf-border-md); border-radius: 3px; background: var(--pf-surface); }
+  .submit-btn {
+    width: 100%;
+    padding: 13px;
+    background: var(--pf-accent);
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    font-family: var(--font-body);
+    margin-bottom: 14px;
+  }
+  .auth-terms { font-size: 11px; color: var(--pf-text-3); text-align: center; line-height: 1.5; }
+  .auth-terms a { color: var(--pf-accent); }
+
+  /* ── Admin page ── */
+  .admin-layout { display: grid; grid-template-columns: 220px 1fr; min-height: 520px; }
+  .admin-sidebar {
+    background: var(--pf-surface);
+    border-right: 1px solid var(--pf-border);
+    padding: 24px 0;
+  }
+  .admin-nav-section {
+    padding: 0 16px;
+    margin-bottom: 24px;
+  }
+  .admin-nav-label {
+    font-size: 9px;
+    font-weight: 700;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--pf-text-3);
+    padding: 0 8px;
+    margin-bottom: 6px;
+  }
+  .admin-nav-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 9px 10px;
+    border-radius: 8px;
+    font-size: 13px;
+    color: var(--pf-text-2);
+    cursor: pointer;
+    margin-bottom: 2px;
+  }
+  .admin-nav-item.active {
+    background: var(--pf-accent-glow);
+    color: var(--pf-text-1);
+    border: 1px solid rgba(108,99,255,0.25);
+  }
+  .admin-nav-item .nav-icon { font-size: 15px; opacity: 0.7; }
+  .admin-main { padding: 32px; }
+  .admin-topbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 28px;
+  }
+  .admin-title { font-family: var(--font-display); font-size: 20px; font-weight: 700; }
+  .metrics-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 14px;
+    margin-bottom: 28px;
+  }
+  .metric-card {
+    background: var(--pf-surface);
+    border: 1px solid var(--pf-border);
+    border-radius: 10px;
+    padding: 16px;
+  }
+  .metric-label { font-size: 11px; color: var(--pf-text-3); margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.08em; }
+  .metric-value { font-family: var(--font-display); font-size: 26px; font-weight: 700; color: var(--pf-text-1); }
+  .metric-delta {
+    font-size: 11px;
+    margin-top: 4px;
+    display: flex;
+    align-items: center;
+    gap: 3px;
+  }
+  .delta-up { color: var(--pf-success); }
+  .delta-down { color: var(--pf-coral); }
+
+  .table-wrap {
+    background: var(--pf-surface);
+    border: 1px solid var(--pf-border);
+    border-radius: 10px;
+    overflow: hidden;
+  }
+  .table-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 16px 20px;
+    border-bottom: 1px solid var(--pf-border);
+  }
+  .table-title { font-size: 14px; font-weight: 600; }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+  th {
+    text-align: left;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--pf-text-3);
+    padding: 10px 20px;
+    border-bottom: 1px solid var(--pf-border);
+  }
+  td {
+    padding: 12px 20px;
+    font-size: 13px;
+    color: var(--pf-text-2);
+    border-bottom: 1px solid rgba(255,255,255,0.04);
+  }
+  tr:last-child td { border-bottom: none; }
+  .status-pill {
+    display: inline-block;
+    font-size: 10px;
+    font-weight: 600;
+    padding: 3px 9px;
+    border-radius: 100px;
+  }
+  .sp-live { background: rgba(52,211,153,0.12); color: var(--pf-success); }
+  .sp-draft { background: var(--pf-elevated); color: var(--pf-text-3); }
+  .sp-review { background: var(--pf-gold-dim); color: var(--pf-gold); }
+  .action-btns { display: flex; gap: 6px; }
+  .act-btn {
+    font-size: 11px;
+    padding: 4px 10px;
+    border-radius: 5px;
+    cursor: pointer;
+    border: 1px solid var(--pf-border-md);
+    color: var(--pf-text-2);
+    background: transparent;
+  }
+
+  /* ── Policy pages ── */
+  .policy-wrap {
+    display: grid;
+    grid-template-columns: 200px 1fr;
+    min-height: 420px;
+  }
+  .policy-nav {
+    background: var(--pf-surface);
+    border-right: 1px solid var(--pf-border);
+    padding: 28px 16px;
+  }
+  .policy-nav-item {
+    display: block;
+    padding: 9px 10px;
+    border-radius: 6px;
+    font-size: 13px;
+    color: var(--pf-text-3);
+    margin-bottom: 2px;
+    cursor: pointer;
+  }
+  .policy-nav-item.active { background: var(--pf-accent-glow); color: var(--pf-accent); }
+  .policy-content { padding: 36px; }
+  .policy-h1 { font-family: var(--font-display); font-size: 24px; font-weight: 800; margin-bottom: 6px; }
+  .policy-updated { font-size: 12px; color: var(--pf-text-3); margin-bottom: 28px; }
+  .policy-section { margin-bottom: 24px; }
+  .policy-section h3 { font-size: 14px; font-weight: 600; color: var(--pf-text-1); margin-bottom: 8px; }
+  .policy-section p { font-size: 13px; color: var(--pf-text-2); line-height: 1.7; }
+  .policy-section ul { list-style: none; padding: 0; }
+  .policy-section ul li {
+    font-size: 13px;
+    color: var(--pf-text-2);
+    line-height: 1.7;
+    padding-left: 14px;
+    position: relative;
+    margin-bottom: 4px;
+  }
+  .policy-section ul li::before {
+    content: '•';
+    position: absolute;
+    left: 0;
+    color: var(--pf-accent);
+    font-size: 10px;
+  }
+
+  /* ── Contact page ── */
+  .contact-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 40px;
+    padding: 40px;
+  }
+  .contact-info-item {
+    display: flex;
+    gap: 14px;
+    align-items: flex-start;
+    margin-bottom: 24px;
+  }
+  .contact-icon {
+    width: 38px; height: 38px;
+    border-radius: 10px;
+    background: var(--pf-accent-glow);
+    border: 1px solid rgba(108,99,255,0.25);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+    flex-shrink: 0;
+  }
+  .contact-form-box {
+    background: var(--pf-surface);
+    border: 1px solid var(--pf-border-md);
+    border-radius: 12px;
+    padding: 28px;
+  }
+
+  /* ── Coming soon ── */
+  .coming-soon {
+    padding: 64px 40px;
+    text-align: center;
+  }
+  .cs-badge {
+    display: inline-block;
+    background: var(--pf-gold-dim);
+    border: 1px solid rgba(245,200,66,0.3);
+    color: var(--pf-gold);
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    padding: 5px 16px;
+    border-radius: 100px;
+    margin-bottom: 24px;
+  }
+  .cs-title {
+    font-family: var(--font-display);
+    font-size: 42px;
+    font-weight: 800;
+    letter-spacing: -0.03em;
+    margin-bottom: 16px;
+  }
+  .cs-sub { font-size: 15px; color: var(--pf-text-2); max-width: 440px; margin: 0 auto 40px; }
+  .cs-features {
+    display: flex;
+    justify-content: center;
+    gap: 24px;
+    margin-bottom: 48px;
+  }
+  .cs-feat {
+    background: var(--pf-surface);
+    border: 1px solid var(--pf-border);
+    border-radius: 12px;
+    padding: 20px 24px;
+    text-align: left;
+    width: 200px;
+  }
+  .cs-feat-icon { font-size: 24px; margin-bottom: 10px; }
+  .cs-feat-title { font-size: 13px; font-weight: 600; color: var(--pf-text-1); }
+  .cs-feat-desc { font-size: 11px; color: var(--pf-text-3); margin-top: 4px; }
+  .email-input-row {
+    display: flex;
+    max-width: 400px;
+    margin: 0 auto;
+    gap: 10px;
+  }
+  .email-input-row input {
+    flex: 1;
+    background: var(--pf-surface);
+    border: 1px solid var(--pf-border-md);
+    border-radius: 8px;
+    padding: 11px 14px;
+    font-size: 13px;
+    color: var(--pf-text-1);
+    font-family: var(--font-body);
+    outline: none;
+  }
+  .email-input-row input::placeholder { color: var(--pf-text-3); }
+
+  /* ── Footer ── */
+  .pf-footer {
+    background: var(--pf-surface);
+    border-top: 1px solid var(--pf-border);
+    padding: 28px 40px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .footer-links { display: flex; gap: 20px; }
+  .footer-link { font-size: 12px; color: var(--pf-text-3); cursor: pointer; }
+
+  /* ── Color Legend ── */
+  .legend-section {
+    margin-top: 80px;
+    padding-top: 56px;
+    border-top: 1px solid var(--pf-border);
+  }
+  .legend-title {
+    font-family: var(--font-display);
+    font-size: 26px;
+    font-weight: 800;
+    margin-bottom: 8px;
+    text-align: center;
+  }
+  .legend-sub { text-align: center; color: var(--pf-text-3); font-size: 13px; margin-bottom: 48px; }
+  .legend-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 24px;
+    margin-bottom: 48px;
+  }
+  .legend-card {
+    background: var(--pf-surface);
+    border: 1px solid var(--pf-border);
+    border-radius: 12px;
+    padding: 20px;
+  }
+  .legend-swatch {
+    width: 48px; height: 48px;
+    border-radius: 10px;
+    margin-bottom: 14px;
+  }
+  .legend-name { font-family: var(--font-display); font-size: 15px; font-weight: 700; margin-bottom: 4px; }
+  .legend-hex { font-size: 12px; color: var(--pf-text-3); font-family: monospace; margin-bottom: 8px; }
+  .legend-desc { font-size: 12px; color: var(--pf-text-2); line-height: 1.6; }
+  .legend-usage {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-top: 10px;
+  }
+  .lu-tag {
+    font-size: 10px;
+    padding: 2px 8px;
+    border-radius: 100px;
+    border: 1px solid var(--pf-border-md);
+    color: var(--pf-text-3);
+  }
+
+  .type-table {
+    background: var(--pf-surface);
+    border: 1px solid var(--pf-border);
+    border-radius: 12px;
+    overflow: hidden;
+    margin-bottom: 32px;
+  }
+  .type-table-header {
+    padding: 16px 20px;
+    border-bottom: 1px solid var(--pf-border);
+    font-family: var(--font-display);
+    font-size: 14px;
+    font-weight: 700;
+  }
+  .type-row {
+    display: grid;
+    grid-template-columns: 180px 140px 1fr;
+    padding: 12px 20px;
+    border-bottom: 1px solid rgba(255,255,255,0.04);
+    align-items: center;
+    gap: 20px;
+  }
+  .type-row:last-child { border-bottom: none; }
+  .type-name { font-size: 13px; font-weight: 600; color: var(--pf-text-1); }
+  .type-spec { font-size: 12px; font-family: monospace; color: var(--pf-accent); }
+  .type-use { font-size: 12px; color: var(--pf-text-3); }
+
+  /* ── Separator labels ── */
+  .divider-label {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin: 40px 0 32px;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--pf-text-3);
+  }
+  .divider-label::before { content: ''; flex: 1; height: 1px; background: var(--pf-border); }
+  .divider-label::after  { content: ''; flex: 1; height: 1px; background: var(--pf-border); }
+
+  /* mini line chart */
+  .sparkline { opacity: 0.6; }
+</style>
+</head>
+<body>
+<div class="doc-wrap">
+
+  <!-- ===== DOC HEADER ===== -->
+  <div class="doc-header">
+    <div class="doc-badge">UI Design System · Phase 1 & 2</div>
+    <h1 class="doc-title">Prompt Factory</h1>
+    <p class="doc-subtitle">Enterprise-grade visual design specification. All pages, interactions, components, and color system.</p>
+    <div class="doc-meta">
+      <span><span class="dot"></span> 8 pages documented</span>
+      <span>Phase 1 + Phase 2</span>
+      <span>Dark-first design system</span>
+      <span>React TypeScript ready</span>
+    </div>
+  </div>
+
+
+  <!-- ===== PAGE 1 — LANDING ===== -->
+  <div class="page-section">
+    <div class="page-label">
+      <span class="page-num">PAGE 01</span>
+      <div>
+        <div style="display:flex;align-items:center;gap:10px;">
+          <span class="page-title">Landing Page</span>
+          <span class="phase-pill phase-1">Phase 1</span>
+        </div>
+        <p class="page-desc">Hero, search, category tabs, trending prompts grid, statistics banner</p>
+      </div>
+    </div>
+    <div class="screen">
+      <div class="browser-bar">
+        <div class="browser-dots"><span class="bd-red"></span><span class="bd-warn"></span><span class="bd-green"></span></div>
+        <div class="browser-url">promptfactory.io</div>
+      </div>
+
+      <!-- Navbar -->
+      <nav class="pf-nav">
+        <div class="pf-logo">Prompt<span>Factory</span></div>
+        <div class="nav-links">
+          <span class="nav-link active">Explore</span>
+          <span class="nav-link">Trending</span>
+          <span class="nav-link">Pricing</span>
+          <span class="nav-link">For Teams</span>
+        </div>
+        <div class="nav-cta">
+          <button class="btn btn-ghost">Sign In</button>
+          <button class="btn btn-primary">Get Started</button>
+        </div>
+      </nav>
+
+      <!-- Hero -->
+      <div class="hero">
+        <div class="hero-eyebrow">Curated for Marketing Teams</div>
+        <h1 class="hero-h1">Discover Prompts That<br /><em>Actually Convert</em></h1>
+        <p class="hero-sub">Browse thousands of human-ranked AI image prompts. Trending, evergreen, retro — for every campaign.</p>
+
+        <!-- Search -->
+        <div class="search-wrap">
+          <svg class="search-icon" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+          <input class="search-bar" placeholder="Search prompts — try 'luxury product shot' or 'retro poster'" type="text" />
+          <span class="search-kbd">⌘K</span>
+        </div>
+
+        <!-- Category tabs -->
+        <div class="cat-tabs">
+          <div class="cat-tab active">
+            <span class="tab-dot td-trending"></span> All Prompts
+          </div>
+          <div class="cat-tab">
+            <span class="tab-dot td-trending"></span> Trending
+          </div>
+          <div class="cat-tab">
+            <span class="tab-dot td-evergreen"></span> Evergreen
+          </div>
+          <div class="cat-tab">
+            <span class="tab-dot td-retro"></span> Retro
+          </div>
+          <div class="cat-tab">
+            <span class="tab-dot td-candid"></span> Candid
+          </div>
+        </div>
+      </div>
+
+      <!-- Stats row -->
+      <div class="stats-row">
+        <div class="stat-item"><div class="stat-num">12<span>K+</span></div><div class="stat-lbl">Curated Prompts</div></div>
+        <div class="stat-item"><div class="stat-num">4<span>.8M</span></div><div class="stat-lbl">Human Clicks</div></div>
+        <div class="stat-item"><div class="stat-num">380<span>+</span></div><div class="stat-lbl">Enterprise Teams</div></div>
+        <div class="stat-item"><div class="stat-num">98<span>%</span></div><div class="stat-lbl">Satisfaction Score</div></div>
+      </div>
+
+      <!-- Prompt Grid — Trending -->
+      <div class="sec-header">
+        <div><span class="sec-title">🔥 <span>Trending</span> Right Now</span></div>
+        <span class="sec-link">View all →</span>
+      </div>
+      <div class="prompt-grid">
+        <!-- Card 1 -->
+        <div class="prompt-card">
+          <div class="card-rank">#1</div>
+          <div class="card-badge badge-trending">Trending</div>
+          <div class="card-img ci-1">
+            <svg width="80" height="80" viewBox="0 0 80 80" fill="none">
+              <rect x="10" y="30" width="60" height="40" rx="4" fill="#6C63FF" opacity="0.3"/>
+              <rect x="20" y="15" width="40" height="30" rx="4" fill="#6C63FF" opacity="0.5"/>
+              <circle cx="40" cy="30" r="12" fill="#6C63FF" opacity="0.8"/>
+              <circle cx="40" cy="30" r="6" fill="#F0F1F5" opacity="0.9"/>
+            </svg>
+          </div>
+          <div class="card-body">
+            <div class="card-title">Neon City Skyline</div>
+            <div class="card-prompt">Futuristic neon-lit cityscape at night with reflections on wet streets…</div>
+            <div class="card-tags">
+              <span class="tag">Architecture</span><span class="tag">Neon</span><span class="tag">Night</span>
+            </div>
+            <div class="card-footer">
+              <span class="card-clicks">▲ 24.1k clicks</span>
+              <span class="card-btn">Try it out →</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Card 2 -->
+        <div class="prompt-card">
+          <div class="card-rank">#2</div>
+          <div class="card-badge badge-trending">Trending</div>
+          <div class="card-img ci-2">
+            <svg width="80" height="80" viewBox="0 0 80 80" fill="none">
+              <rect x="5" y="20" width="70" height="50" rx="6" fill="#4FC3F7" opacity="0.2"/>
+              <rect x="15" y="10" width="50" height="35" rx="4" fill="#4FC3F7" opacity="0.35"/>
+              <path d="M10 55 L40 25 L70 55" stroke="#4FC3F7" stroke-width="2" fill="none" opacity="0.7"/>
+              <circle cx="40" cy="40" r="10" fill="#4FC3F7" opacity="0.6"/>
+            </svg>
+          </div>
+          <div class="card-body">
+            <div class="card-title">Luxury Product Float</div>
+            <div class="card-prompt">Minimalist product shot floating mid-air with soft shadow beneath…</div>
+            <div class="card-tags">
+              <span class="tag">Product</span><span class="tag">Luxury</span><span class="tag">Studio</span>
+            </div>
+            <div class="card-footer">
+              <span class="card-clicks">▲ 19.8k clicks</span>
+              <span class="card-btn">Try it out →</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Card 3 -->
+        <div class="prompt-card">
+          <div class="card-rank">#3</div>
+          <div class="card-badge badge-evergreen">Evergreen</div>
+          <div class="card-img ci-3">
+            <svg width="80" height="80" viewBox="0 0 80 80" fill="none">
+              <circle cx="40" cy="40" r="30" fill="#00D4B4" opacity="0.15"/>
+              <circle cx="40" cy="40" r="20" fill="#00D4B4" opacity="0.25"/>
+              <circle cx="40" cy="40" r="10" fill="#00D4B4" opacity="0.5"/>
+              <path d="M25 55 Q40 20 55 55" stroke="#00D4B4" stroke-width="2" fill="none"/>
+            </svg>
+          </div>
+          <div class="card-body">
+            <div class="card-title">Brand Identity Mesh</div>
+            <div class="card-prompt">Abstract gradient mesh background for corporate brand identity design…</div>
+            <div class="card-tags">
+              <span class="tag">Branding</span><span class="tag">Abstract</span>
+            </div>
+            <div class="card-footer">
+              <span class="card-clicks">▲ 17.3k clicks</span>
+              <span class="card-btn">Try it out →</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Card 4 -->
+        <div class="prompt-card">
+          <div class="card-rank">#4</div>
+          <div class="card-badge badge-retro">Retro</div>
+          <div class="card-img ci-4">
+            <svg width="80" height="80" viewBox="0 0 80 80" fill="none">
+              <rect x="15" y="20" width="50" height="40" rx="3" fill="#F5C842" opacity="0.15"/>
+              <rect x="20" y="25" width="40" height="5" fill="#F5C842" opacity="0.4"/>
+              <rect x="20" y="35" width="30" height="5" fill="#F5C842" opacity="0.3"/>
+              <rect x="20" y="45" width="35" height="5" fill="#F5C842" opacity="0.25"/>
+              <circle cx="55" cy="55" r="8" fill="#F5C842" opacity="0.5"/>
+            </svg>
+          </div>
+          <div class="card-body">
+            <div class="card-title">70s Vintage Poster</div>
+            <div class="card-prompt">Retro 1970s travel poster style illustration with warm earth tones…</div>
+            <div class="card-tags">
+              <span class="tag">Vintage</span><span class="tag">Poster</span><span class="tag">Warm</span>
+            </div>
+            <div class="card-footer">
+              <span class="card-clicks">▲ 14.9k clicks</span>
+              <span class="card-btn">Try it out →</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Evergreen section -->
+      <div class="sec-header">
+        <div><span class="sec-title">🌿 <span>Evergreen</span> Picks</span></div>
+        <span class="sec-link">View all →</span>
+      </div>
+      <div class="prompt-grid">
+        <div class="prompt-card">
+          <div class="card-rank">#1</div>
+          <div class="card-badge badge-evergreen">Evergreen</div>
+          <div class="card-img ci-5">
+            <svg width="80" height="80" viewBox="0 0 80 80" fill="none">
+              <ellipse cx="40" cy="45" rx="25" ry="20" fill="#00D4B4" opacity="0.2"/>
+              <path d="M40 20 L55 40 L40 60 L25 40 Z" stroke="#00D4B4" stroke-width="1.5" fill="none" opacity="0.7"/>
+              <circle cx="40" cy="40" r="5" fill="#00D4B4"/>
+            </svg>
+          </div>
+          <div class="card-body">
+            <div class="card-title">Minimal UI Showcase</div>
+            <div class="card-prompt">Clean white desk setup with MacBook and minimal accessories…</div>
+            <div class="card-tags"><span class="tag">Tech</span><span class="tag">Minimal</span></div>
+            <div class="card-footer">
+              <span class="card-clicks">▲ 11.2k clicks</span>
+              <span class="card-btn">Try it out →</span>
+            </div>
+          </div>
+        </div>
+        <div class="prompt-card">
+          <div class="card-rank">#2</div>
+          <div class="card-badge badge-candid">Candid</div>
+          <div class="card-img ci-6">
+            <svg width="80" height="80" viewBox="0 0 80 80" fill="none">
+              <rect x="10" y="15" width="60" height="50" rx="5" fill="#FF6B6B" opacity="0.15"/>
+              <circle cx="30" cy="35" r="10" fill="#FF6B6B" opacity="0.35"/>
+              <circle cx="50" cy="45" r="12" fill="#FF6B6B" opacity="0.25"/>
+              <path d="M20 60 Q40 35 60 60" stroke="#FF6B6B" stroke-width="2" fill="none" opacity="0.6"/>
+            </svg>
+          </div>
+          <div class="card-body">
+            <div class="card-title">Candid Street Market</div>
+            <div class="card-prompt">Busy street market with warm bokeh lights and organic motion blur…</div>
+            <div class="card-tags"><span class="tag">Street</span><span class="tag">Lifestyle</span></div>
+            <div class="card-footer">
+              <span class="card-clicks">▲ 9.7k clicks</span>
+              <span class="card-btn">Try it out →</span>
+            </div>
+          </div>
+        </div>
+        <div class="prompt-card">
+          <div class="card-rank">#3</div>
+          <div class="card-badge badge-retro">Retro</div>
+          <div class="card-img ci-7">
+            <svg width="80" height="80" viewBox="0 0 80 80" fill="none">
+              <rect x="8" y="22" width="64" height="36" rx="4" stroke="#F5C842" stroke-width="1.5" fill="none" opacity="0.4"/>
+              <circle cx="40" cy="40" r="14" stroke="#F5C842" stroke-width="1.5" fill="none" opacity="0.5"/>
+              <circle cx="40" cy="40" r="6" fill="#F5C842" opacity="0.7"/>
+            </svg>
+          </div>
+          <div class="card-body">
+            <div class="card-title">Bauhaus Geometry</div>
+            <div class="card-prompt">Bold Bauhaus-inspired geometric shapes in primary colors…</div>
+            <div class="card-tags"><span class="tag">Geometry</span><span class="tag">Bold</span></div>
+            <div class="card-footer">
+              <span class="card-clicks">▲ 8.4k clicks</span>
+              <span class="card-btn">Try it out →</span>
+            </div>
+          </div>
+        </div>
+        <div class="prompt-card">
+          <div class="card-rank">#4</div>
+          <div class="card-badge badge-trending">Trending</div>
+          <div class="card-img ci-8">
+            <svg width="80" height="80" viewBox="0 0 80 80" fill="none">
+              <path d="M15 65 L40 15 L65 65 Z" stroke="#6C63FF" stroke-width="1.5" fill="rgba(108,99,255,0.15)" opacity="0.8"/>
+              <circle cx="40" cy="15" r="4" fill="#6C63FF" opacity="0.9"/>
+              <circle cx="15" cy="65" r="4" fill="#6C63FF" opacity="0.9"/>
+              <circle cx="65" cy="65" r="4" fill="#6C63FF" opacity="0.9"/>
+            </svg>
+          </div>
+          <div class="card-body">
+            <div class="card-title">Abstract 3D Form</div>
+            <div class="card-prompt">Sculptural abstract 3D object with subsurface scattering material…</div>
+            <div class="card-tags"><span class="tag">3D</span><span class="tag">Abstract</span></div>
+            <div class="card-footer">
+              <span class="card-clicks">▲ 7.1k clicks</span>
+              <span class="card-btn">Try it out →</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Footer -->
+      <div class="pf-footer">
+        <div class="pf-logo" style="font-size:14px;">Prompt<span>Factory</span></div>
+        <div class="footer-links">
+          <span class="footer-link">Contact</span>
+          <span class="footer-link">Terms</span>
+          <span class="footer-link">Privacy</span>
+          <span class="footer-link">Refund Policy</span>
+          <span class="footer-link">Video — Coming Soon</span>
+        </div>
+        <span style="font-size:11px;color:var(--pf-text-3);">© 2025 PromptFactory Inc.</span>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- ===== PAGE 2 — PROMPT DETAIL (Phase 1) ===== -->
+  <div class="page-section">
+    <div class="page-label">
+      <span class="page-num">PAGE 02</span>
+      <div>
+        <div style="display:flex;align-items:center;gap:10px;">
+          <span class="page-title">Prompt Detail — View & Copy</span>
+          <span class="phase-pill phase-1">Phase 1</span>
+        </div>
+        <p class="page-desc">Full prompt text, reference images, copy button, metadata, related prompts</p>
+      </div>
+    </div>
+    <div class="screen">
+      <div class="browser-bar">
+        <div class="browser-dots"><span class="bd-red"></span><span class="bd-warn"></span><span class="bd-green"></span></div>
+        <div class="browser-url">promptfactory.io/prompt/neon-city-skyline</div>
+      </div>
+      <nav class="pf-nav">
+        <div class="pf-logo">Prompt<span>Factory</span></div>
+        <div class="nav-links">
+          <span class="nav-link">← Back to Explore</span>
+        </div>
+        <div class="nav-cta">
+          <button class="btn btn-ghost btn-sm">Share</button>
+          <button class="btn btn-primary btn-sm">Save to Library</button>
+        </div>
+      </nav>
+
+      <div class="detail-layout">
+        <div class="detail-left">
+          <div class="detail-breadcrumb">
+            <a>Explore</a> <span>/</span> <a>Trending</a> <span>/</span> Neon City Skyline
+          </div>
+
+          <div style="display:flex;align-items:flex-start;gap:16px;margin-bottom:16px;">
+            <div>
+              <h1 class="detail-h1">Neon City Skyline</h1>
+              <div class="detail-tags">
+                <span class="detail-tag accent">Trending #1</span>
+                <span class="detail-tag">Architecture</span>
+                <span class="detail-tag">Night</span>
+                <span class="detail-tag">Cyberpunk</span>
+                <span class="detail-tag">Cinematic</span>
+              </div>
+              <div style="display:flex;gap:20px;font-size:12px;color:var(--pf-text-3);margin-bottom:20px;">
+                <span>👆 24,130 clicks</span>
+                <span>⭐ 4.9 / 5.0</span>
+                <span>📅 Updated 2 days ago</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Reference images -->
+          <div style="margin-bottom:12px;">
+            <div class="prompt-box-label">Reference Images</div>
+            <div class="ref-images">
+              <div class="ref-img ci-1 active">
+                <svg width="48" height="48" viewBox="0 0 48 48" fill="none"><rect x="4" y="16" width="40" height="26" rx="3" fill="#6C63FF" opacity="0.3"/><circle cx="24" cy="22" r="8" fill="#6C63FF" opacity="0.7"/><circle cx="24" cy="22" r="4" fill="#F0F1F5" opacity="0.9"/></svg>
+              </div>
+              <div class="ref-img ci-2">
+                <svg width="48" height="48" viewBox="0 0 48 48" fill="none"><rect x="4" y="10" width="40" height="30" rx="3" fill="#4FC3F7" opacity="0.25"/><path d="M8 35 L24 15 L40 35" stroke="#4FC3F7" stroke-width="1.5" fill="none" opacity="0.7"/></svg>
+              </div>
+              <div class="ref-img ci-3">
+                <svg width="48" height="48" viewBox="0 0 48 48" fill="none"><circle cx="24" cy="24" r="16" fill="#00D4B4" opacity="0.2"/><circle cx="24" cy="24" r="8" fill="#00D4B4" opacity="0.4"/><circle cx="24" cy="24" r="4" fill="#00D4B4" opacity="0.7"/></svg>
+              </div>
+            </div>
+          </div>
+
+          <!-- Full prompt -->
+          <div class="prompt-box">
+            <div class="prompt-box-label">Full Prompt</div>
+            <button class="copy-btn">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+              Copy
+            </button>
+            <p class="prompt-text">
+              A futuristic neon-lit metropolis at midnight, rain-soaked streets reflecting neon signs in electric blue, magenta, and amber. Shot from street level looking up at towering skyscrapers. Cinematic composition, anamorphic lens flares, ultra-photorealistic, 8K resolution. Mood: cyberpunk, dystopian elegance.
+            </p>
+          </div>
+
+          <!-- Negative prompt -->
+          <div class="prompt-box">
+            <div class="prompt-box-label">Negative Prompt (Recommended)</div>
+            <button class="copy-btn">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+              Copy
+            </button>
+            <p class="prompt-text" style="color:var(--pf-coral);">blurry, low quality, daytime, cartoonish, flat lighting, oversaturated, watermark</p>
+          </div>
+
+          <!-- Suggested models -->
+          <div style="margin-top:20px;">
+            <div class="prompt-box-label">Works best with</div>
+            <div style="display:flex;gap:8px;">
+              <span style="background:var(--pf-accent-glow);color:var(--pf-accent);border:1px solid rgba(108,99,255,0.3);border-radius:6px;padding:5px 12px;font-size:12px;font-weight:600;">DALL-E 3</span>
+              <span style="background:var(--pf-teal-dim);color:var(--pf-teal);border:1px solid rgba(0,212,180,0.25);border-radius:6px;padding:5px 12px;font-size:12px;font-weight:600;">Midjourney v6</span>
+              <span style="background:var(--pf-elevated);color:var(--pf-text-2);border:1px solid var(--pf-border-md);border-radius:6px;padding:5px 12px;font-size:12px;font-weight:600;">Flux Pro</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="detail-right">
+          <div class="detail-right-title">Generate Image</div>
+          <div class="detail-right-sub">Use this prompt to create a unique image instantly</div>
+
+          <!-- Phase 1: single generate -->
+          <div style="background:var(--pf-surface);border:1px solid var(--pf-border-md);border-radius:10px;padding:16px;margin-bottom:16px;">
+            <div class="prompt-box-label" style="margin-bottom:10px;">Select Model</div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:14px;">
+              <div style="border:1px solid rgba(108,99,255,0.4);background:var(--pf-accent-glow);border-radius:8px;padding:10px;cursor:pointer;">
+                <div style="font-size:12px;font-weight:600;color:var(--pf-accent);">DALL-E 3</div>
+                <div style="font-size:10px;color:var(--pf-text-3);margin-top:2px;">OpenAI · Fast</div>
+              </div>
+              <div style="border:1px solid var(--pf-border-md);background:var(--pf-elevated);border-radius:8px;padding:10px;cursor:pointer;">
+                <div style="font-size:12px;font-weight:600;color:var(--pf-text-2);">Flux Pro</div>
+                <div style="font-size:10px;color:var(--pf-text-3);margin-top:2px;">BFL · High detail</div>
+              </div>
+            </div>
+            <button class="generate-btn">⚡ Generate Image</button>
+            <div class="usage-bar-wrap">
+              <div class="usage-label"><span>Daily usage</span><span>1 / 3 used</span></div>
+              <div class="usage-bar"><div class="usage-fill" style="width:33%;"></div></div>
+            </div>
+          </div>
+
+          <!-- Upload reference -->
+          <div style="background:var(--pf-surface);border:1px dashed var(--pf-border-md);border-radius:10px;padding:20px;text-align:center;margin-bottom:16px;cursor:pointer;">
+            <div style="font-size:22px;margin-bottom:8px;">📎</div>
+            <div style="font-size:13px;color:var(--pf-text-2);font-weight:500;">Upload reference image</div>
+            <div style="font-size:11px;color:var(--pf-text-3);margin-top:4px;">PNG, JPG up to 10MB</div>
+          </div>
+
+          <!-- Sign up CTA for non-users -->
+          <div style="background:var(--pf-elevated);border:1px solid var(--pf-border-md);border-radius:10px;padding:16px;text-align:center;">
+            <div style="font-size:13px;font-weight:600;color:var(--pf-text-1);margin-bottom:4px;">Save to your Library</div>
+            <div style="font-size:11px;color:var(--pf-text-3);margin-bottom:12px;">Sign in to save prompts and track generations</div>
+            <button class="btn btn-primary" style="width:100%;justify-content:center;display:flex;">Sign In with Google</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- ===== PAGE 3 — PROMPT DETAIL Phase 2 (Multi-LLM) ===== -->
+  <div class="page-section">
+    <div class="page-label">
+      <span class="page-num">PAGE 03</span>
+      <div>
+        <div style="display:flex;align-items:center;gap:10px;">
+          <span class="page-title">Prompt Detail — AI Generation (Phase 2)</span>
+          <span class="phase-pill phase-2">Phase 2</span>
+        </div>
+        <p class="page-desc">Multi-LLM pipeline: Generate → Evaluate → Final Check. Premium vs Free tier states.</p>
+      </div>
+    </div>
+    <div class="screen">
+      <div class="browser-bar">
+        <div class="browser-dots"><span class="bd-red"></span><span class="bd-warn"></span><span class="bd-green"></span></div>
+        <div class="browser-url">promptfactory.io/prompt/neon-city-skyline — Premium view</div>
+      </div>
+      <nav class="pf-nav">
+        <div class="pf-logo">Prompt<span>Factory</span></div>
+        <div class="nav-links">
+          <span class="nav-link">← Back to Explore</span>
+        </div>
+        <div class="nav-cta">
+          <span style="font-size:12px;background:var(--pf-gold-dim);color:var(--pf-gold);border:1px solid rgba(245,200,66,0.3);padding:5px 14px;border-radius:100px;font-weight:600;">⭐ Premium</span>
+          <button class="btn btn-ghost btn-sm">Account</button>
+        </div>
+      </nav>
+
+      <div class="detail-layout">
+        <div class="detail-left">
+          <h1 class="detail-h1">Neon City Skyline</h1>
+          <div class="detail-tags">
+            <span class="detail-tag accent">Trending #1</span>
+            <span class="detail-tag">Architecture</span>
+            <span class="detail-tag">Night</span>
+          </div>
+
+          <!-- Generated output preview area -->
+          <div style="background:var(--pf-surface);border:1px solid var(--pf-border-md);border-radius:12px;overflow:hidden;margin-bottom:20px;">
+            <div style="background:var(--pf-elevated);padding:10px 16px;border-bottom:1px solid var(--pf-border);display:flex;align-items:center;justify-content:space-between;">
+              <span style="font-size:12px;font-weight:600;color:var(--pf-text-1);">Generated Output</span>
+              <div style="display:flex;gap:8px;">
+                <span style="font-size:10px;background:rgba(52,211,153,0.12);color:var(--pf-success);border:1px solid rgba(52,211,153,0.25);padding:3px 8px;border-radius:100px;">✓ Final Check Passed</span>
+                <button class="act-btn" style="font-size:11px;">Download</button>
+              </div>
+            </div>
+            <div style="height:200px;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,#0D0F1A,#1A0D26,#0D1A2E);">
+              <svg width="120" height="120" viewBox="0 0 120 120" fill="none">
+                <rect x="5" y="30" width="110" height="80" rx="6" fill="#6C63FF" opacity="0.1"/>
+                <path d="M10 90 L30 55 L50 70 L75 30 L110 90 Z" fill="#6C63FF" opacity="0.2"/>
+                <path d="M10 90 L30 55 L50 70 L75 30 L110 90 Z" stroke="#6C63FF" stroke-width="1" fill="none" opacity="0.6"/>
+                <circle cx="75" cy="30" r="8" fill="#F5C842" opacity="0.7"/>
+                <rect x="15" y="60" width="3" height="30" fill="#4FC3F7" opacity="0.5"/>
+                <rect x="25" y="50" width="3" height="40" fill="#4FC3F7" opacity="0.4"/>
+                <rect x="35" y="65" width="3" height="25" fill="#4FC3F7" opacity="0.3"/>
+                <rect x="90" y="55" width="3" height="35" fill="#6C63FF" opacity="0.5"/>
+                <rect x="100" y="45" width="3" height="45" fill="#6C63FF" opacity="0.4"/>
+              </svg>
+            </div>
+          </div>
+
+          <div class="prompt-box">
+            <div class="prompt-box-label">Full Prompt</div>
+            <button class="copy-btn"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>Copy</button>
+            <p class="prompt-text">A futuristic neon-lit metropolis at midnight, rain-soaked streets reflecting neon signs in electric blue, magenta, and amber. Shot from street level looking up at towering skyscrapers. Cinematic composition, anamorphic lens flares, ultra-photorealistic, 8K resolution.</p>
+          </div>
+        </div>
+
+        <div class="detail-right">
+          <!-- Premium banner -->
+          <div class="premium-banner">
+            <span class="premium-icon">⭐</span>
+            <div class="premium-text">
+              <div class="premium-title">3-Stage Premium Pipeline</div>
+              <div class="premium-desc">Generate → Evaluate → Final Check for best quality output</div>
+            </div>
+          </div>
+
+          <!-- Pipeline stages -->
+          <div style="margin-bottom:16px;">
+            <div class="prompt-box-label" style="margin-bottom:10px;">Generation Pipeline</div>
+            <div style="display:flex;align-items:center;gap:6px;margin-bottom:14px;">
+              <div class="pipe-stage active" style="flex:1;">
+                <div class="pipe-icon">⚡</div>
+                <div class="pipe-name">Generate</div>
+                <div class="pipe-model">DALL-E 3</div>
+              </div>
+              <div style="font-size:12px;color:var(--pf-text-3);">→</div>
+              <div class="pipe-stage active" style="flex:1;">
+                <div class="pipe-icon">🔍</div>
+                <div class="pipe-name">Evaluate</div>
+                <div class="pipe-model">GPT-4V</div>
+              </div>
+              <div style="font-size:12px;color:var(--pf-text-3);">→</div>
+              <div class="pipe-stage active" style="flex:1;">
+                <div class="pipe-icon">✅</div>
+                <div class="pipe-name">Final Check</div>
+                <div class="pipe-model">Claude 3.5</div>
+              </div>
+            </div>
+
+            <!-- Free tier state -->
+            <div style="background:var(--pf-elevated);border:1px solid var(--pf-border);border-radius:10px;padding:14px;margin-bottom:14px;">
+              <div style="font-size:11px;font-weight:600;color:var(--pf-text-3);margin-bottom:8px;text-transform:uppercase;letter-spacing:0.1em;">Free Tier — Single Stage</div>
+              <div style="display:flex;align-items:center;gap:6px;">
+                <div class="pipe-stage active" style="flex:1;">
+                  <div class="pipe-icon">⚡</div>
+                  <div class="pipe-name">Generate Only</div>
+                  <div class="pipe-model">DALL-E 3</div>
+                </div>
+                <div style="flex:2;text-align:center;font-size:11px;color:var(--pf-text-3);">
+                  Upgrade for Evaluate + Final Check stages
+                </div>
+              </div>
+            </div>
+
+            <button class="generate-btn" style="margin-bottom:12px;">⚡ Run Full Pipeline</button>
+
+            <div class="usage-bar-wrap">
+              <div class="usage-label">
+                <span>Premium — Unlimited generations</span>
+                <span style="color:var(--pf-success);">∞</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Quality scores -->
+          <div style="background:var(--pf-surface);border:1px solid var(--pf-border);border-radius:10px;padding:14px;">
+            <div class="prompt-box-label" style="margin-bottom:10px;">Last Run Quality Scores</div>
+            <div style="display:flex;flex-direction:column;gap:10px;">
+              <div>
+                <div style="display:flex;justify-content:space-between;font-size:11px;color:var(--pf-text-3);margin-bottom:4px;"><span>Prompt Adherence</span><span style="color:var(--pf-success);font-weight:600;">94%</span></div>
+                <div class="usage-bar"><div class="usage-fill" style="width:94%;background:var(--pf-success);"></div></div>
+              </div>
+              <div>
+                <div style="display:flex;justify-content:space-between;font-size:11px;color:var(--pf-text-3);margin-bottom:4px;"><span>Visual Quality</span><span style="color:var(--pf-teal);font-weight:600;">88%</span></div>
+                <div class="usage-bar"><div class="usage-fill" style="width:88%;background:var(--pf-teal);"></div></div>
+              </div>
+              <div>
+                <div style="display:flex;justify-content:space-between;font-size:11px;color:var(--pf-text-3);margin-bottom:4px;"><span>Brand Safety</span><span style="color:var(--pf-success);font-weight:600;">100%</span></div>
+                <div class="usage-bar"><div class="usage-fill" style="width:100%;background:var(--pf-success);"></div></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- ===== PAGE 4 — SIGN IN / SIGN UP ===== -->
+  <div class="page-section">
+    <div class="page-label">
+      <span class="page-num">PAGE 04</span>
+      <div>
+        <div style="display:flex;align-items:center;gap:10px;">
+          <span class="page-title">Authentication — Sign In / Sign Up</span>
+          <span class="phase-pill phase-1">Phase 1</span>
+        </div>
+        <p class="page-desc">Google OAuth primary, email fallback, feature highlights panel</p>
+      </div>
+    </div>
+    <div class="screen">
+      <div class="browser-bar">
+        <div class="browser-dots"><span class="bd-red"></span><span class="bd-warn"></span><span class="bd-green"></span></div>
+        <div class="browser-url">promptfactory.io/auth/signup</div>
+      </div>
+      <div class="auth-wrap">
+        <div class="auth-left">
+          <div class="pf-logo" style="font-size:22px;margin-bottom:40px;">Prompt<span>Factory</span></div>
+          <h2 style="font-family:var(--font-display);font-size:28px;font-weight:800;margin-bottom:8px;line-height:1.2;">The prompt library<br/>marketing teams love.</h2>
+          <p style="font-size:13px;color:var(--pf-text-3);margin-bottom:36px;">Join 380+ enterprise teams discovering high-converting AI image prompts.</p>
+
+          <div class="auth-feature">
+            <div class="auth-feature-icon afi-1">🔥</div>
+            <div>
+              <div class="auth-feature-title">Human-ranked prompts</div>
+              <div class="auth-feature-desc">Every prompt ranked by real click engagement, not algorithms.</div>
+            </div>
+          </div>
+          <div class="auth-feature">
+            <div class="auth-feature-icon afi-2">⚡</div>
+            <div>
+              <div class="auth-feature-title">One-click generation</div>
+              <div class="auth-feature-desc">Generate directly in-app with leading AI image models.</div>
+            </div>
+          </div>
+          <div class="auth-feature">
+            <div class="auth-feature-icon afi-3">⭐</div>
+            <div>
+              <div class="auth-feature-title">Premium 3-stage pipeline</div>
+              <div class="auth-feature-desc">Generate → Evaluate → Final Check for studio-quality output.</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="auth-right">
+          <div class="auth-form-title">Create your account</div>
+          <div class="auth-form-sub">Already have an account? <a style="color:var(--pf-accent);cursor:pointer;">Sign in</a></div>
+
+          <button class="google-btn">
+            <div class="google-g"><span style="color:#4285F4;font-size:11px;">G</span></div>
+            Continue with Google
+          </button>
+
+          <div class="divider">or continue with email</div>
+
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+            <div class="form-field">
+              <label class="form-label">First name</label>
+              <input class="form-input" placeholder="Arun" type="text"/>
+            </div>
+            <div class="form-field">
+              <label class="form-label">Last name</label>
+              <input class="form-input" placeholder="Kumar" type="text"/>
+            </div>
+          </div>
+          <div class="form-field">
+            <label class="form-label">Work email</label>
+            <input class="form-input focus" placeholder="arun@company.com" type="email"/>
+          </div>
+          <div class="form-field">
+            <label class="form-label">Password</label>
+            <input class="form-input" placeholder="Min. 8 characters" type="password"/>
+          </div>
+          <div class="form-check">
+            <div class="checkbox"></div>
+            I agree to the Terms of Service and Privacy Policy
+          </div>
+          <button class="submit-btn">Create Free Account</button>
+          <div class="auth-terms">By signing up you agree to our <a>Terms</a>, <a>Privacy Policy</a> and <a>Cookie Policy</a></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- ===== PAGE 5 — ADMIN MODULE ===== -->
+  <div class="page-section">
+    <div class="page-label">
+      <span class="page-num">PAGE 05</span>
+      <div>
+        <div style="display:flex;align-items:center;gap:10px;">
+          <span class="page-title">Admin Module — Content Management</span>
+          <span class="phase-pill phase-1">Phase 1</span>
+        </div>
+        <p class="page-desc">Prompt CRUD, user management, analytics metrics, category management</p>
+      </div>
+    </div>
+    <div class="screen">
+      <div class="browser-bar">
+        <div class="browser-dots"><span class="bd-red"></span><span class="bd-warn"></span><span class="bd-green"></span></div>
+        <div class="browser-url">admin.promptfactory.io/dashboard</div>
+      </div>
+
+      <!-- Admin topbar -->
+      <div style="background:var(--pf-surface);border-bottom:1px solid var(--pf-border);padding:12px 24px;display:flex;align-items:center;justify-content:space-between;">
+        <div class="pf-logo" style="font-size:16px;">Prompt<span>Factory</span> <span style="font-size:11px;color:var(--pf-text-3);font-family:var(--font-body);font-weight:400;margin-left:8px;">Admin Console</span></div>
+        <div style="display:flex;align-items:center;gap:12px;">
+          <span style="font-size:12px;color:var(--pf-text-3);">Admin: Priya Sharma</span>
+          <div style="width:30px;height:30px;border-radius:50%;background:var(--pf-accent-glow);border:1px solid rgba(108,99,255,0.3);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:var(--pf-accent);">PS</div>
+        </div>
+      </div>
+
+      <div class="admin-layout">
+        <div class="admin-sidebar">
+          <div class="admin-nav-section">
+            <div class="admin-nav-label">Overview</div>
+            <div class="admin-nav-item active">📊 Dashboard</div>
+            <div class="admin-nav-item">📈 Analytics</div>
+          </div>
+          <div class="admin-nav-section">
+            <div class="admin-nav-label">Content</div>
+            <div class="admin-nav-item">🖼️ Prompts</div>
+            <div class="admin-nav-item">🗂️ Categories</div>
+            <div class="admin-nav-item">🏷️ Tags</div>
+          </div>
+          <div class="admin-nav-section">
+            <div class="admin-nav-label">Users</div>
+            <div class="admin-nav-item">👥 All Users</div>
+            <div class="admin-nav-item">⭐ Premium</div>
+            <div class="admin-nav-item">🚫 Flagged</div>
+          </div>
+          <div class="admin-nav-section">
+            <div class="admin-nav-label">Settings</div>
+            <div class="admin-nav-item">⚙️ API Keys</div>
+            <div class="admin-nav-item">💳 Billing</div>
+          </div>
+        </div>
+
+        <div class="admin-main">
+          <div class="admin-topbar">
+            <div>
+              <div class="admin-title">Dashboard</div>
+              <div style="font-size:12px;color:var(--pf-text-3);margin-top:2px;">Last updated: just now</div>
+            </div>
+            <div style="display:flex;gap:10px;">
+              <button class="btn btn-ghost btn-sm">Export</button>
+              <button class="btn btn-primary btn-sm">+ Add Prompt</button>
+            </div>
+          </div>
+
+          <div class="metrics-grid">
+            <div class="metric-card">
+              <div class="metric-label">Total Prompts</div>
+              <div class="metric-value">12,483</div>
+              <div class="metric-delta delta-up">▲ +148 this week</div>
+            </div>
+            <div class="metric-card">
+              <div class="metric-label">Total Users</div>
+              <div class="metric-value">38,291</div>
+              <div class="metric-delta delta-up">▲ +2.1k this month</div>
+            </div>
+            <div class="metric-card">
+              <div class="metric-label">Premium Users</div>
+              <div class="metric-value">4,812</div>
+              <div class="metric-delta delta-up">▲ +312 (12.6%)</div>
+            </div>
+            <div class="metric-card">
+              <div class="metric-label">Generations Today</div>
+              <div class="metric-value">9,340</div>
+              <div class="metric-delta delta-down">▼ -4% vs yesterday</div>
+            </div>
+          </div>
+
+          <div class="table-wrap">
+            <div class="table-header">
+              <span class="table-title">Recent Prompts</span>
+              <div style="display:flex;gap:8px;">
+                <input type="text" placeholder="Search prompts…" style="background:var(--pf-elevated);border:1px solid var(--pf-border-md);border-radius:6px;padding:6px 12px;font-size:12px;color:var(--pf-text-1);width:180px;font-family:var(--font-body);outline:none;" />
+                <select style="background:var(--pf-elevated);border:1px solid var(--pf-border-md);border-radius:6px;padding:6px 10px;font-size:12px;color:var(--pf-text-2);font-family:var(--font-body);outline:none;">
+                  <option>All categories</option>
+                  <option>Trending</option>
+                  <option>Evergreen</option>
+                </select>
+              </div>
+            </div>
+            <table>
+              <thead>
+                <tr>
+                  <th>Title</th>
+                  <th>Category</th>
+                  <th>Clicks</th>
+                  <th>Status</th>
+                  <th>Added</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td style="color:var(--pf-text-1);font-weight:500;">Neon City Skyline</td>
+                  <td><span class="status-pill" style="background:var(--pf-accent-glow);color:var(--pf-accent);">Trending</span></td>
+                  <td>24,130</td>
+                  <td><span class="status-pill sp-live">Live</span></td>
+                  <td>2 days ago</td>
+                  <td><div class="action-btns"><button class="act-btn">Edit</button><button class="act-btn">View</button></div></td>
+                </tr>
+                <tr>
+                  <td style="color:var(--pf-text-1);font-weight:500;">Luxury Product Float</td>
+                  <td><span class="status-pill" style="background:var(--pf-accent-glow);color:var(--pf-accent);">Trending</span></td>
+                  <td>19,820</td>
+                  <td><span class="status-pill sp-live">Live</span></td>
+                  <td>5 days ago</td>
+                  <td><div class="action-btns"><button class="act-btn">Edit</button><button class="act-btn">View</button></div></td>
+                </tr>
+                <tr>
+                  <td style="color:var(--pf-text-1);font-weight:500;">Brand Identity Mesh</td>
+                  <td><span class="status-pill" style="background:var(--pf-teal-dim);color:var(--pf-teal);">Evergreen</span></td>
+                  <td>17,310</td>
+                  <td><span class="status-pill sp-live">Live</span></td>
+                  <td>1 week ago</td>
+                  <td><div class="action-btns"><button class="act-btn">Edit</button><button class="act-btn">View</button></div></td>
+                </tr>
+                <tr>
+                  <td style="color:var(--pf-text-1);font-weight:500;">70s Vintage Poster Draft</td>
+                  <td><span class="status-pill" style="background:var(--pf-gold-dim);color:var(--pf-gold);">Retro</span></td>
+                  <td>—</td>
+                  <td><span class="status-pill sp-draft">Draft</span></td>
+                  <td>Today</td>
+                  <td><div class="action-btns"><button class="act-btn">Edit</button><button class="act-btn" style="color:var(--pf-success);">Publish</button></div></td>
+                </tr>
+                <tr>
+                  <td style="color:var(--pf-text-1);font-weight:500;">Urban Candid Series</td>
+                  <td><span class="status-pill" style="background:var(--pf-coral-dim);color:var(--pf-coral);">Candid</span></td>
+                  <td>—</td>
+                  <td><span class="status-pill sp-review">In Review</span></td>
+                  <td>Today</td>
+                  <td><div class="action-btns"><button class="act-btn">Edit</button><button class="act-btn">Preview</button></div></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- ===== PAGE 6 — POLICY PAGES ===== -->
+  <div class="page-section">
+    <div class="page-label">
+      <span class="page-num">PAGE 06</span>
+      <div>
+        <div style="display:flex;align-items:center;gap:10px;">
+          <span class="page-title">Legal Pages — T&C, Privacy, Refund</span>
+          <span class="phase-pill phase-1">Phase 1</span>
+        </div>
+        <p class="page-desc">Shared layout for Terms, Privacy Policy, and Refund & Return Policy</p>
+      </div>
+    </div>
+    <div class="screen">
+      <div class="browser-bar">
+        <div class="browser-dots"><span class="bd-red"></span><span class="bd-warn"></span><span class="bd-green"></span></div>
+        <div class="browser-url">promptfactory.io/legal/privacy-policy</div>
+      </div>
+      <nav class="pf-nav">
+        <div class="pf-logo">Prompt<span>Factory</span></div>
+        <div class="nav-links">
+          <span class="nav-link">← Back to Home</span>
+        </div>
+      </nav>
+      <div class="policy-wrap">
+        <div class="policy-nav">
+          <div style="font-size:10px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:var(--pf-text-3);padding:0 10px;margin-bottom:10px;">Legal</div>
+          <div class="policy-nav-item">Terms & Conditions</div>
+          <div class="policy-nav-item active">Privacy Policy</div>
+          <div class="policy-nav-item">Refund & Return Policy</div>
+          <div style="margin-top:24px;padding:0 10px;">
+            <div style="font-size:10px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:var(--pf-text-3);margin-bottom:10px;">On this page</div>
+            <div style="font-size:12px;color:var(--pf-text-3);line-height:2.2;cursor:pointer;">1. Data we collect</div>
+            <div style="font-size:12px;color:var(--pf-accent);line-height:2.2;cursor:pointer;">2. How we use data</div>
+            <div style="font-size:12px;color:var(--pf-text-3);line-height:2.2;cursor:pointer;">3. Sharing & disclosure</div>
+            <div style="font-size:12px;color:var(--pf-text-3);line-height:2.2;cursor:pointer;">4. Data retention</div>
+            <div style="font-size:12px;color:var(--pf-text-3);line-height:2.2;cursor:pointer;">5. Your rights</div>
+            <div style="font-size:12px;color:var(--pf-text-3);line-height:2.2;cursor:pointer;">6. Contact</div>
+          </div>
+        </div>
+        <div class="policy-content">
+          <h1 class="policy-h1">Privacy Policy</h1>
+          <div class="policy-updated">Last updated: June 14, 2025 · Effective: July 1, 2025</div>
+
+          <div class="policy-section">
+            <h3>1. Data We Collect</h3>
+            <p>When you use PromptFactory, we collect information you provide directly and data generated through your use of the service.</p>
+            <ul>
+              <li>Account information: name, email address, profile picture (via Google OAuth)</li>
+              <li>Usage data: prompts viewed, search queries, generated images, session timestamps</li>
+              <li>Payment information: processed securely via Stripe (we do not store card details)</li>
+              <li>Device information: browser type, IP address, operating system</li>
+            </ul>
+          </div>
+
+          <div class="policy-section">
+            <h3>2. How We Use Your Data</h3>
+            <p>We use your data to provide, improve, and personalise the PromptFactory service, and to communicate important updates.</p>
+            <ul>
+              <li>To authenticate your account and maintain your session</li>
+              <li>To enforce daily generation limits and premium tier access</li>
+              <li>To rank prompts by human engagement signals</li>
+              <li>To send product updates (can be unsubscribed at any time)</li>
+            </ul>
+          </div>
+
+          <div class="policy-section">
+            <h3>5. Your Rights (GDPR & DPDP)</h3>
+            <p>Under applicable data protection laws, you have the right to access, rectify, delete, or export your personal data at any time. Submit requests to <span style="color:var(--pf-accent);">privacy@promptfactory.io</span></p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- ===== PAGE 7 — CONTACT US ===== -->
+  <div class="page-section">
+    <div class="page-label">
+      <span class="page-num">PAGE 07</span>
+      <div>
+        <div style="display:flex;align-items:center;gap:10px;">
+          <span class="page-title">Contact Us</span>
+          <span class="phase-pill phase-1">Phase 1</span>
+        </div>
+        <p class="page-desc">Support enquiry form, contact details, enterprise sales contact</p>
+      </div>
+    </div>
+    <div class="screen">
+      <div class="browser-bar">
+        <div class="browser-dots"><span class="bd-red"></span><span class="bd-warn"></span><span class="bd-green"></span></div>
+        <div class="browser-url">promptfactory.io/contact</div>
+      </div>
+      <nav class="pf-nav">
+        <div class="pf-logo">Prompt<span>Factory</span></div>
+        <div class="nav-links"><span class="nav-link">← Back to Home</span></div>
+      </nav>
+
+      <div style="padding:40px 40px 20px;text-align:center;">
+        <div class="doc-badge" style="font-size:10px;">Support · Sales · Partnerships</div>
+        <h2 style="font-family:var(--font-display);font-size:34px;font-weight:800;margin:16px 0 8px;letter-spacing:-0.02em;">Get in Touch</h2>
+        <p style="color:var(--pf-text-2);font-size:14px;max-width:400px;margin:0 auto;">Our team typically responds within 2 business hours.</p>
+      </div>
+
+      <div class="contact-grid">
+        <div>
+          <div style="margin-bottom:32px;">
+            <h3 style="font-family:var(--font-display);font-size:16px;font-weight:700;margin-bottom:20px;">Contact Channels</h3>
+            <div class="contact-info-item">
+              <div class="contact-icon">✉️</div>
+              <div>
+                <div style="font-size:13px;font-weight:600;color:var(--pf-text-1);">General Support</div>
+                <div style="font-size:12px;color:var(--pf-accent);margin-top:2px;">support@promptfactory.io</div>
+                <div style="font-size:11px;color:var(--pf-text-3);margin-top:2px;">Response within 2 business hours</div>
+              </div>
+            </div>
+            <div class="contact-info-item">
+              <div class="contact-icon">🏢</div>
+              <div>
+                <div style="font-size:13px;font-weight:600;color:var(--pf-text-1);">Enterprise Sales</div>
+                <div style="font-size:12px;color:var(--pf-accent);margin-top:2px;">sales@promptfactory.io</div>
+                <div style="font-size:11px;color:var(--pf-text-3);margin-top:2px;">Team plans, custom integrations, SLAs</div>
+              </div>
+            </div>
+            <div class="contact-info-item">
+              <div class="contact-icon">🤝</div>
+              <div>
+                <div style="font-size:13px;font-weight:600;color:var(--pf-text-1);">Partnerships</div>
+                <div style="font-size:12px;color:var(--pf-accent);margin-top:2px;">partners@promptfactory.io</div>
+                <div style="font-size:11px;color:var(--pf-text-3);margin-top:2px;">API access, white-label, resellers</div>
+              </div>
+            </div>
+          </div>
+          <div style="background:var(--pf-gold-dim);border:1px solid rgba(245,200,66,0.2);border-radius:10px;padding:16px;">
+            <div style="font-size:13px;font-weight:700;color:var(--pf-gold);margin-bottom:4px;">⭐ For Enterprise Teams</div>
+            <div style="font-size:12px;color:var(--pf-text-2);line-height:1.6;">Looking for team plans with shared prompt libraries, SSO, and dedicated support? Let's talk.</div>
+            <button class="btn btn-gold" style="margin-top:12px;font-size:12px;padding:7px 14px;">Book a Demo</button>
+          </div>
+        </div>
+
+        <div class="contact-form-box">
+          <h3 style="font-size:15px;font-weight:700;margin-bottom:20px;">Send a Message</h3>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+            <div class="form-field"><label class="form-label">Name</label><input class="form-input" placeholder="Your name" type="text"/></div>
+            <div class="form-field"><label class="form-label">Email</label><input class="form-input" placeholder="your@email.com" type="email"/></div>
+          </div>
+          <div class="form-field">
+            <label class="form-label">Subject</label>
+            <select style="width:100%;background:var(--pf-elevated);border:1px solid var(--pf-border-md);border-radius:8px;padding:10px 14px;font-size:13px;color:var(--pf-text-2);font-family:var(--font-body);outline:none;">
+              <option>General Enquiry</option>
+              <option>Billing Issue</option>
+              <option>Enterprise Sales</option>
+              <option>Technical Support</option>
+              <option>Partnership</option>
+            </select>
+          </div>
+          <div class="form-field">
+            <label class="form-label">Message</label>
+            <textarea class="form-input" style="resize:vertical;min-height:100px;line-height:1.6;" placeholder="Describe your question or requirement…"></textarea>
+          </div>
+          <button class="submit-btn" style="margin-top:4px;">Send Message</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- ===== PAGE 8 — VIDEO COMING SOON ===== -->
+  <div class="page-section">
+    <div class="page-label">
+      <span class="page-num">PAGE 08</span>
+      <div>
+        <div style="display:flex;align-items:center;gap:10px;">
+          <span class="page-title">Video Generation — Coming Soon</span>
+          <span class="phase-pill phase-2">Phase 2</span>
+        </div>
+        <p class="page-desc">Waitlist capture, feature teaser, early access CTA</p>
+      </div>
+    </div>
+    <div class="screen">
+      <div class="browser-bar">
+        <div class="browser-dots"><span class="bd-red"></span><span class="bd-warn"></span><span class="bd-green"></span></div>
+        <div class="browser-url">promptfactory.io/video</div>
+      </div>
+      <nav class="pf-nav">
+        <div class="pf-logo">Prompt<span>Factory</span></div>
+        <div class="nav-links">
+          <span class="nav-link">← Back to Explore</span>
+        </div>
+        <div class="nav-cta">
+          <button class="btn btn-ghost">Sign In</button>
+          <button class="btn btn-gold">Join Waitlist</button>
+        </div>
+      </nav>
+
+      <div class="coming-soon">
+        <div class="cs-badge">🎬 Coming Soon</div>
+        <h1 class="cs-title">Video Prompts<br/>Are Next.</h1>
+        <p class="cs-sub">The same human-ranked quality you trust for images — coming to Sora, Runway, and Kling-powered video generation.</p>
+
+        <div class="cs-features">
+          <div class="cs-feat">
+            <div class="cs-feat-icon">🎥</div>
+            <div class="cs-feat-title">Multi-model video</div>
+            <div class="cs-feat-desc">Sora, Runway Gen-3, Kling</div>
+          </div>
+          <div class="cs-feat">
+            <div class="cs-feat-icon">⭐</div>
+            <div class="cs-feat-title">3-stage pipeline</div>
+            <div class="cs-feat-desc">Generate, evaluate, refine</div>
+          </div>
+          <div class="cs-feat">
+            <div class="cs-feat-icon">📊</div>
+            <div class="cs-feat-title">Human-click ranked</div>
+            <div class="cs-feat-desc">Same trust model as images</div>
+          </div>
+        </div>
+
+        <div class="email-input-row">
+          <input type="email" placeholder="your@work.com — get early access" />
+          <button class="btn btn-gold" style="white-space:nowrap;">Notify Me</button>
+        </div>
+        <div style="font-size:11px;color:var(--pf-text-3);margin-top:14px;">1,240 people already on the waitlist · No spam, unsubscribe anytime</div>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- ===== COLOR LEGEND ===== -->
+  <div class="legend-section">
+    <h2 class="legend-title">Design System Color Legend</h2>
+    <p class="legend-sub">Complete color specification for engineering handoff. All values are production-ready CSS variables.</p>
+
+    <!-- Surface colours -->
+    <div style="margin-bottom:40px;">
+      <div class="divider-label">Surface & Background Layers</div>
+      <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:16px;">
+        <div>
+          <div style="height:60px;border-radius:10px;background:#0A0B0F;border:1px solid rgba(255,255,255,0.1);margin-bottom:10px;"></div>
+          <div style="font-size:12px;font-weight:600;color:var(--pf-text-1);">Obsidian</div>
+          <div style="font-size:11px;color:var(--pf-text-3);font-family:monospace;">#0A0B0F</div>
+          <div style="font-size:11px;color:var(--pf-text-3);">--pf-obsidian</div>
+          <div style="font-size:11px;color:var(--pf-text-2);margin-top:4px;">Page body background</div>
+        </div>
+        <div>
+          <div style="height:60px;border-radius:10px;background:#12141A;border:1px solid rgba(255,255,255,0.1);margin-bottom:10px;"></div>
+          <div style="font-size:12px;font-weight:600;color:var(--pf-text-1);">Void</div>
+          <div style="font-size:11px;color:var(--pf-text-3);font-family:monospace;">#12141A</div>
+          <div style="font-size:11px;color:var(--pf-text-3);">--pf-void</div>
+          <div style="font-size:11px;color:var(--pf-text-2);margin-top:4px;">Screen/canvas background</div>
+        </div>
+        <div>
+          <div style="height:60px;border-radius:10px;background:#1A1D26;border:1px solid rgba(255,255,255,0.1);margin-bottom:10px;"></div>
+          <div style="font-size:12px;font-weight:600;color:var(--pf-text-1);">Surface</div>
+          <div style="font-size:11px;color:var(--pf-text-3);font-family:monospace;">#1A1D26</div>
+          <div style="font-size:11px;color:var(--pf-text-3);">--pf-surface</div>
+          <div style="font-size:11px;color:var(--pf-text-2);margin-top:4px;">Cards, nav, sidebars</div>
+        </div>
+        <div>
+          <div style="height:60px;border-radius:10px;background:#21253A;border:1px solid rgba(255,255,255,0.1);margin-bottom:10px;"></div>
+          <div style="font-size:12px;font-weight:600;color:var(--pf-text-1);">Elevated</div>
+          <div style="font-size:11px;color:var(--pf-text-3);font-family:monospace;">#21253A</div>
+          <div style="font-size:11px;color:var(--pf-text-3);">--pf-elevated</div>
+          <div style="font-size:11px;color:var(--pf-text-2);margin-top:4px;">Hover states, inputs</div>
+        </div>
+        <div>
+          <div style="height:60px;border-radius:10px;background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.15);margin-bottom:10px;display:flex;align-items:center;justify-content:center;font-size:11px;color:rgba(255,255,255,0.4);">alpha</div>
+          <div style="font-size:12px;font-weight:600;color:var(--pf-text-1);">Border</div>
+          <div style="font-size:11px;color:var(--pf-text-3);font-family:monospace;">rgba(255,255,255,0.08)</div>
+          <div style="font-size:11px;color:var(--pf-text-3);">--pf-border</div>
+          <div style="font-size:11px;color:var(--pf-text-2);margin-top:4px;">Default dividers</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Brand colours -->
+    <div style="margin-bottom:40px;">
+      <div class="divider-label">Brand & Accent Palette</div>
+      <div class="legend-grid">
+        <div class="legend-card">
+          <div class="legend-swatch" style="background:#6C63FF;"></div>
+          <div class="legend-name">Iris Violet</div>
+          <div class="legend-hex">#6C63FF · --pf-accent</div>
+          <div class="legend-desc">Primary brand accent. Used for CTAs, active states, links, rankings, and all primary interactive elements.</div>
+          <div class="legend-usage">
+            <span class="lu-tag">Primary buttons</span>
+            <span class="lu-tag">Active tabs</span>
+            <span class="lu-tag">Links</span>
+            <span class="lu-tag">Rank badges</span>
+            <span class="lu-tag">Focus rings</span>
+          </div>
+        </div>
+        <div class="legend-card">
+          <div class="legend-swatch" style="background:#00D4B4;"></div>
+          <div class="legend-name">Bioluminescent Teal</div>
+          <div class="legend-hex">#00D4B4 · --pf-teal</div>
+          <div class="legend-desc">Evergreen category colour. Also used for positive metrics, success indicators, and secondary highlights.</div>
+          <div class="legend-usage">
+            <span class="lu-tag">Evergreen badge</span>
+            <span class="lu-tag">Quality scores</span>
+            <span class="lu-tag">Success state</span>
+            <span class="lu-tag">Hero accent</span>
+          </div>
+        </div>
+        <div class="legend-card">
+          <div class="legend-swatch" style="background:#F5C842;"></div>
+          <div class="legend-name">Saffron Gold</div>
+          <div class="legend-hex">#F5C842 · --pf-gold</div>
+          <div class="legend-desc">Premium tier indicator. Retro category badge. High-value CTAs like "Book a Demo" and "Join Waitlist".</div>
+          <div class="legend-usage">
+            <span class="lu-tag">Premium badge</span>
+            <span class="lu-tag">Retro category</span>
+            <span class="lu-tag">Gold CTAs</span>
+            <span class="lu-tag">Waitlist</span>
+          </div>
+        </div>
+        <div class="legend-card">
+          <div class="legend-swatch" style="background:#FF6B6B;"></div>
+          <div class="legend-name">Coral Red</div>
+          <div class="legend-hex">#FF6B6B · --pf-coral</div>
+          <div class="legend-desc">Candid category identifier. Negative prompts display. Downward delta indicators in admin metrics.</div>
+          <div class="legend-usage">
+            <span class="lu-tag">Candid badge</span>
+            <span class="lu-tag">Negative prompt</span>
+            <span class="lu-tag">Delta down</span>
+            <span class="lu-tag">Destructive</span>
+          </div>
+        </div>
+        <div class="legend-card">
+          <div class="legend-swatch" style="background:#4FC3F7;"></div>
+          <div class="legend-name">Sky Blue</div>
+          <div class="legend-hex">#4FC3F7 · --pf-sky</div>
+          <div class="legend-desc">Supplementary accent used in illustration elements, image placeholder graphics, and SVG decorative shapes.</div>
+          <div class="legend-usage">
+            <span class="lu-tag">Illustrations</span>
+            <span class="lu-tag">Card imagery</span>
+            <span class="lu-tag">Decorative SVG</span>
+          </div>
+        </div>
+        <div class="legend-card">
+          <div class="legend-swatch" style="background:#34D399;"></div>
+          <div class="legend-name">Emerald Green</div>
+          <div class="legend-hex">#34D399 · --pf-success</div>
+          <div class="legend-desc">Success states, live status indicators, upward delta metrics in admin, quality score bars, brand safety pass.</div>
+          <div class="legend-usage">
+            <span class="lu-tag">Live status</span>
+            <span class="lu-tag">Score bars</span>
+            <span class="lu-tag">Delta up</span>
+            <span class="lu-tag">Checkmarks</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Text colours -->
+    <div style="margin-bottom:40px;">
+      <div class="divider-label">Typography Scale</div>
+      <div style="background:var(--pf-surface);border:1px solid var(--pf-border);border-radius:12px;overflow:hidden;">
+        <div style="padding:16px 24px;border-bottom:1px solid var(--pf-border);font-family:var(--font-display);font-size:14px;font-weight:700;">Text Color Tokens</div>
+        <div style="padding:20px 24px;display:grid;grid-template-columns:repeat(3,1fr);gap:20px;">
+          <div>
+            <div style="font-size:24px;font-weight:700;color:#F0F1F5;margin-bottom:6px;">Primary</div>
+            <div style="font-family:monospace;font-size:11px;color:var(--pf-text-3);">#F0F1F5 · --pf-text-1</div>
+            <div style="font-size:12px;color:var(--pf-text-2);margin-top:4px;">Headings, active labels, important values</div>
+          </div>
+          <div>
+            <div style="font-size:24px;font-weight:700;color:#A8ACBD;margin-bottom:6px;">Secondary</div>
+            <div style="font-family:monospace;font-size:11px;color:var(--pf-text-3);">#A8ACBD · --pf-text-2</div>
+            <div style="font-size:12px;color:var(--pf-text-2);margin-top:4px;">Body copy, form labels, descriptions</div>
+          </div>
+          <div>
+            <div style="font-size:24px;font-weight:700;color:#636780;margin-bottom:6px;">Tertiary</div>
+            <div style="font-family:monospace;font-size:11px;color:var(--pf-text-3);">#636780 · --pf-text-3</div>
+            <div style="font-size:12px;color:var(--pf-text-2);margin-top:4px;">Placeholders, metadata, helper text</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Typography spec -->
+    <div style="margin-bottom:40px;">
+      <div class="divider-label">Typography Specification</div>
+      <div class="type-table">
+        <div class="type-table-header">Font Roles</div>
+        <div class="type-row">
+          <div class="type-name">Display / Headings</div>
+          <div class="type-spec">Syne 700–800</div>
+          <div class="type-use">Hero titles, page headings, card titles, logo, section headers</div>
+        </div>
+        <div class="type-row">
+          <div class="type-name">Body / UI</div>
+          <div class="type-spec">DM Sans 300–500</div>
+          <div class="type-use">Paragraphs, form labels, navigation, buttons, table cells</div>
+        </div>
+        <div class="type-row">
+          <div class="type-name">Code / Hex</div>
+          <div class="type-spec">System Mono 400</div>
+          <div class="type-use">Prompt text display, URL bar, colour hex values, API keys</div>
+        </div>
+      </div>
+
+      <div class="type-table">
+        <div class="type-table-header">Type Scale</div>
+        <div class="type-row">
+          <div class="type-name">Hero H1</div>
+          <div class="type-spec">54px / 800 / −0.03em</div>
+          <div class="type-use">Landing hero, coming soon page</div>
+        </div>
+        <div class="type-row">
+          <div class="type-name">Detail H1</div>
+          <div class="type-spec">30px / 800 / −0.02em</div>
+          <div class="type-use">Prompt detail page title</div>
+        </div>
+        <div class="type-row">
+          <div class="type-name">Section title</div>
+          <div class="type-spec">18px / 700</div>
+          <div class="type-use">Admin section headers, page sections</div>
+        </div>
+        <div class="type-row">
+          <div class="type-name">Card title</div>
+          <div class="type-spec">13px / 700 / Syne</div>
+          <div class="type-use">Prompt card headings</div>
+        </div>
+        <div class="type-row">
+          <div class="type-name">Body default</div>
+          <div class="type-spec">13–14px / 400 / 1.6lh</div>
+          <div class="type-use">All prose, descriptions, policy text</div>
+        </div>
+        <div class="type-row">
+          <div class="type-name">Labels / Meta</div>
+          <div class="type-spec">10–11px / 600 / 0.1em</div>
+          <div class="type-use">Table headers, status pills, tag text, badges</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Spacing system -->
+    <div>
+      <div class="divider-label">Spacing & Border Radius</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
+        <div class="legend-card">
+          <div style="font-family:var(--font-display);font-size:14px;font-weight:700;margin-bottom:16px;">Spacing Scale</div>
+          <div style="display:flex;flex-direction:column;gap:8px;">
+            <div style="display:flex;align-items:center;gap:12px;"><div style="width:4px;height:16px;background:var(--pf-accent);border-radius:2px;"></div><span style="font-size:12px;color:var(--pf-text-2);">4px — Icon gap, tag padding internal</span></div>
+            <div style="display:flex;align-items:center;gap:12px;"><div style="width:8px;height:16px;background:var(--pf-accent);border-radius:2px;"></div><span style="font-size:12px;color:var(--pf-text-2);">8px — Flex gaps, small grid gap</span></div>
+            <div style="display:flex;align-items:center;gap:12px;"><div style="width:12px;height:16px;background:var(--pf-accent);border-radius:2px;"></div><span style="font-size:12px;color:var(--pf-text-2);">12px — Card inner gap, form gap</span></div>
+            <div style="display:flex;align-items:center;gap:12px;"><div style="width:16px;height:16px;background:var(--pf-accent);border-radius:2px;"></div><span style="font-size:12px;color:var(--pf-text-2);">16px — Grid gap, prompt grid</span></div>
+            <div style="display:flex;align-items:center;gap:12px;"><div style="width:24px;height:16px;background:var(--pf-accent);border-radius:2px;"></div><span style="font-size:12px;color:var(--pf-text-2);">24px — Section gap, detail padding</span></div>
+            <div style="display:flex;align-items:center;gap:12px;"><div style="width:40px;height:16px;background:var(--pf-accent);border-radius:2px;"></div><span style="font-size:12px;color:var(--pf-text-2);">40px — Page horizontal padding</span></div>
+            <div style="display:flex;align-items:center;gap:12px;"><div style="width:64px;height:16px;background:var(--pf-accent);border-radius:2px;"></div><span style="font-size:12px;color:var(--pf-text-2);">64px — Section vertical padding</span></div>
+          </div>
+        </div>
+        <div class="legend-card">
+          <div style="font-family:var(--font-display);font-size:14px;font-weight:700;margin-bottom:16px;">Border Radius System</div>
+          <div style="display:flex;flex-direction:column;gap:12px;">
+            <div style="display:flex;align-items:center;gap:16px;">
+              <div style="width:48px;height:24px;background:var(--pf-accent-glow);border:1px solid rgba(108,99,255,0.3);border-radius:4px;"></div>
+              <span style="font-size:12px;color:var(--pf-text-2);">4px — Small elements: action buttons, table cells</span>
+            </div>
+            <div style="display:flex;align-items:center;gap:16px;">
+              <div style="width:48px;height:24px;background:var(--pf-accent-glow);border:1px solid rgba(108,99,255,0.3);border-radius:6px;"></div>
+              <span style="font-size:12px;color:var(--pf-text-2);">6px — Form inputs, model selector chips</span>
+            </div>
+            <div style="display:flex;align-items:center;gap:16px;">
+              <div style="width:48px;height:24px;background:var(--pf-accent-glow);border:1px solid rgba(108,99,255,0.3);border-radius:8px;"></div>
+              <span style="font-size:12px;color:var(--pf-text-2);">8px — Buttons, nav pills</span>
+            </div>
+            <div style="display:flex;align-items:center;gap:16px;">
+              <div style="width:48px;height:24px;background:var(--pf-accent-glow);border:1px solid rgba(108,99,255,0.3);border-radius:10px;"></div>
+              <span style="font-size:12px;color:var(--pf-text-2);">10px — Panel boxes, prompt boxes</span>
+            </div>
+            <div style="display:flex;align-items:center;gap:16px;">
+              <div style="width:48px;height:24px;background:var(--pf-accent-glow);border:1px solid rgba(108,99,255,0.3);border-radius:12px;"></div>
+              <span style="font-size:12px;color:var(--pf-text-2);">12px — Prompt cards, major panels</span>
+            </div>
+            <div style="display:flex;align-items:center;gap:16px;">
+              <div style="width:48px;height:24px;background:var(--pf-accent-glow);border:1px solid rgba(108,99,255,0.3);border-radius:100px;"></div>
+              <span style="font-size:12px;color:var(--pf-text-2);">100px — Pills: tags, badges, category tabs</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Footer note -->
+    <div style="margin-top:48px;text-align:center;padding:28px;background:var(--pf-surface);border:1px solid var(--pf-border);border-radius:12px;">
+      <div style="font-family:var(--font-display);font-size:16px;font-weight:700;margin-bottom:6px;">Engineering Handoff Notes</div>
+      <div style="font-size:13px;color:var(--pf-text-2);max-width:600px;margin:0 auto;line-height:1.7;">
+        All CSS variables are defined in <code style="background:var(--pf-elevated);padding:2px 6px;border-radius:4px;font-size:12px;">:root</code>. Dark-first design — no light mode override needed for v1. Font loading via Google Fonts CDN (Syne + DM Sans). All interactive states (hover, focus, active) are specified in the component stylesheet. Prompt cards use CSS grid with <code style="background:var(--pf-elevated);padding:2px 6px;border-radius:4px;font-size:12px;">repeat(auto-fill, minmax(240px, 1fr))</code> for responsive layouts.
+      </div>
+    </div>
+  </div>
+
+</div>
+</body>
+</html>
