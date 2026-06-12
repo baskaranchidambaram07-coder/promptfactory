@@ -2,6 +2,12 @@ import { useState, useEffect, useCallback, useMemo } from 'react';
 import api from '../../api/adminApi';
 import s from './Admin.module.css';
 
+// GEN_STATE: idle | loading | preview | uploading
+const GEN_IDLE      = 'idle';
+const GEN_LOADING   = 'loading';
+const GEN_PREVIEW   = 'preview';
+const GEN_UPLOADING = 'uploading';
+
 const EMPTY_FORM = {
   promptdescription: '', Categories: '', tags: '',
   FromURL: '', ToURL: '', usedcount: 0,
@@ -37,6 +43,10 @@ export default function Prompts() {
   const [form, setForm]       = useState(EMPTY_FORM);
   const [saving, setSaving]   = useState(false);
   const [msg, setMsg]         = useState(null);
+  const [genState, setGenState]       = useState(GEN_IDLE);
+  const [genPreviewUrl, setGenPreview] = useState(null);
+  const [genError, setGenError]       = useState(null);
+  const [lightbox, setLightbox]       = useState(null);
 
   // Sorting — default: PromptId ascending
   const [sortCol, setSortCol] = useState('PromptId');
@@ -96,7 +106,9 @@ export default function Prompts() {
 
   const set = (k) => (e) => setForm((f) => ({ ...f, [k]: e.target.value }));
 
-  const openAdd = () => { setEditId(null); setForm(EMPTY_FORM); setShowForm(true); };
+  const resetGen = () => { setGenState(GEN_IDLE); setGenPreview(null); setGenError(null); };
+
+  const openAdd = () => { setEditId(null); setForm(EMPTY_FORM); resetGen(); setShowForm(true); };
 
   const openEdit = (item) => {
     setEditId(item.PromptId);
@@ -108,7 +120,44 @@ export default function Prompts() {
       ToURL: item.ToURL || '',
       usedcount: item.usedcount || 0,
     });
+    resetGen();
     setShowForm(true);
+  };
+
+  const handleGenerate = async () => {
+    if (!form.promptdescription.trim()) {
+      setGenError('Enter a prompt description first.');
+      return;
+    }
+    setGenState(GEN_LOADING);
+    setGenError(null);
+    setGenPreview(null);
+    try {
+      const { data } = await api.post('/admin/generate-image', { prompt: form.promptdescription });
+      setGenPreview(data.imageUrl);
+      setGenState(GEN_PREVIEW);
+    } catch (err) {
+      setGenError(err.response?.data?.error || 'Generation failed');
+      setGenState(GEN_IDLE);
+    }
+  };
+
+  const handleUseImage = async () => {
+    setGenState(GEN_UPLOADING);
+    try {
+      const { data } = await api.post('/admin/upload-to-cloudinary', { imageUrl: genPreviewUrl });
+      console.log('[handleUseImage] Cloudinary URL:', data.cloudinaryUrl);
+      if (!data.cloudinaryUrl) throw new Error('No URL returned from Cloudinary');
+      setForm((f) => ({ ...f, ToURL: data.cloudinaryUrl }));
+      setGenState(GEN_IDLE);
+      setGenPreview(null);
+      setGenError(null);
+      flash('success', 'Image uploaded — click Create Prompt to save.');
+    } catch (err) {
+      console.error('[handleUseImage] error:', err);
+      setGenError(err.response?.data?.error || err.message || 'Upload to Cloudinary failed');
+      setGenState(GEN_PREVIEW);
+    }
   };
 
   const save = async (e) => {
@@ -116,6 +165,7 @@ export default function Prompts() {
     setSaving(true);
     try {
       const payload = { ...form, usedcount: parseInt(form.usedcount) || 0 };
+      console.log('[save] payload ToURL:', payload.ToURL);
       if (editId) {
         await api.put(`/admin/collection/${editId}`, payload);
         flash('success', 'Prompt updated');
@@ -195,7 +245,67 @@ export default function Prompts() {
               </div>
               <div className={s.field}>
                 <label className={s.label}>To (After) Image URL</label>
-                <input className={s.input} placeholder="https://…" value={form.ToURL} onChange={set('ToURL')} />
+                {genState === GEN_IDLE && (
+                  <>
+                    <input
+                      className={s.input}
+                      placeholder={form.ToURL ? form.ToURL : 'Click "Generate Image" or paste URL…'}
+                      value={form.ToURL}
+                      onChange={set('ToURL')}
+                      style={{ marginBottom: 6 }}
+                    />
+                    <button
+                      type="button"
+                      className={s.btnPrimary}
+                      style={{ width: '100%' }}
+                      onClick={handleGenerate}
+                    >
+                      ✨ Generate Image
+                    </button>
+                    {genError && <div style={{ color: 'var(--pf-red, #e53)', fontSize: 12, marginTop: 4 }}>{genError}</div>}
+                  </>
+                )}
+                {genState === GEN_LOADING && (
+                  <div style={{ padding: '12px 0', fontSize: 13, color: 'var(--pf-text-3)' }}>⏳ Generating image…</div>
+                )}
+                {(genState === GEN_PREVIEW || genState === GEN_UPLOADING) && genPreviewUrl && (
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                    <img
+                      src={genPreviewUrl}
+                      alt="Generated preview"
+                      onClick={() => setLightbox(genPreviewUrl)}
+                      style={{ width: '100%', height: 280, objectFit: 'contain', borderRadius: 6, border: '1px solid var(--pf-border)', background: 'var(--pf-accent-glow)', cursor: 'zoom-in' }}
+                    />
+                    {genError && <div style={{ color: 'var(--pf-red, #e53)', fontSize: 12 }}>{genError}</div>}
+                    <div style={{ display: 'flex', gap: 6 }}>
+                      <button
+                        type="button"
+                        className={s.btnPrimary}
+                        style={{ flex: 1 }}
+                        onClick={handleUseImage}
+                        disabled={genState === GEN_UPLOADING}
+                      >
+                        {genState === GEN_UPLOADING ? 'Uploading…' : '✅ Use this Image'}
+                      </button>
+                      <button
+                        type="button"
+                        className={s.btnGhost}
+                        onClick={handleGenerate}
+                        disabled={genState === GEN_UPLOADING}
+                      >
+                        🔁 Regenerate
+                      </button>
+                      <button
+                        type="button"
+                        className={s.btnGhost}
+                        onClick={resetGen}
+                        disabled={genState === GEN_UPLOADING}
+                      >
+                        ❌
+                      </button>
+                    </div>
+                  </div>
+                )}
               </div>
               <div className={s.field}>
                 <label className={s.label}>Used Count</label>
@@ -301,6 +411,33 @@ export default function Prompts() {
           )}
         </div>
       </div>
+
+      {/* Lightbox */}
+      {lightbox && (
+        <div
+          onClick={() => setLightbox(null)}
+          style={{
+            position: 'fixed', inset: 0, zIndex: 9999,
+            background: 'rgba(0,0,0,0.9)',
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            cursor: 'zoom-out',
+          }}
+        >
+          <img
+            src={lightbox}
+            alt="Full size preview"
+            style={{ maxWidth: '92vw', maxHeight: '92vh', objectFit: 'contain', borderRadius: 10, boxShadow: '0 8px 48px rgba(0,0,0,0.6)' }}
+          />
+          <button
+            onClick={() => setLightbox(null)}
+            style={{
+              position: 'absolute', top: 20, right: 24,
+              background: 'rgba(255,255,255,0.12)', border: 'none', borderRadius: 8,
+              color: '#fff', fontSize: 22, cursor: 'pointer', padding: '4px 12px', lineHeight: 1.4,
+            }}
+          >✕</button>
+        </div>
+      )}
     </div>
   );
 }

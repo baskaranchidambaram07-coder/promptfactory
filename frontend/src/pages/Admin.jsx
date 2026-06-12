@@ -7,15 +7,31 @@ import styles from './Admin.module.css';
 
 const TABS = ['Dashboard', 'Prompts', 'Users'];
 
+const EMPTY_FORM = {
+  promptdescription: '',
+  Categories: '',
+  tags: '',
+  FromURL: '',
+  ToURL: '',
+  usedcount: 0,
+};
+
 export default function Admin() {
   const { user } = useAuth();
   const navigate = useNavigate();
-  const [tab, setTab] = useState('Dashboard');
-  const [stats, setStats] = useState(null);
+  const [tab, setTab]       = useState('Dashboard');
+  const [stats, setStats]   = useState(null);
   const [prompts, setPrompts] = useState([]);
-  const [users, setUsers] = useState([]);
-  const [form, setForm] = useState({ title: '', text: '', negative_prompt: '', category: 'travel', tags: '', thumbnail_url: '', images: '' });
+  const [users, setUsers]   = useState([]);
+  const [form, setForm]     = useState(EMPTY_FORM);
   const [editId, setEditId] = useState(null);
+  const [showForm, setShowForm] = useState(false);
+
+  // Image generation states
+  const [genLoading, setGenLoading]   = useState(false);
+  const [genPreview, setGenPreview]   = useState(null);   // temp OpenAI URL
+  const [uploadLoading, setUploadLoading] = useState(false);
+  const [genError, setGenError]       = useState('');
 
   useEffect(() => {
     if (!user || user.role !== 'admin') { navigate('/'); return; }
@@ -24,41 +40,90 @@ export default function Admin() {
 
   useEffect(() => {
     if (tab === 'Prompts') api.get('/admin/prompts').then((r) => setPrompts(r.data)).catch(() => {});
-    if (tab === 'Users') api.get('/admin/users').then((r) => setUsers(r.data)).catch(() => {});
+    if (tab === 'Users')   api.get('/admin/users').then((r) => setUsers(r.data)).catch(() => {});
   }, [tab]);
 
   const set = (k) => (e) => setForm((f) => ({ ...f, [k]: e.target.value }));
 
-  const savePrompt = async (e) => {
-    e.preventDefault();
-    const payload = {
-      ...form,
-      tags: form.tags.split(',').map((t) => t.trim()).filter(Boolean),
-      images: form.images.split(',').map((t) => t.trim()).filter(Boolean),
-    };
+  const resetForm = () => {
+    setForm(EMPTY_FORM);
+    setEditId(null);
+    setShowForm(false);
+    setGenPreview(null);
+    setGenError('');
+  };
+
+  // ── Generate image via OpenAI ──
+  const handleGenerate = async () => {
+    if (!form.promptdescription.trim()) {
+      setGenError('Please enter prompt text first before generating.');
+      return;
+    }
+    setGenError('');
+    setGenLoading(true);
+    setGenPreview(null);
     try {
+      const r = await api.post('/admin/generate-image', { prompt: form.promptdescription });
+      setGenPreview(r.data.imageUrl);
+    } catch (err) {
+      setGenError(err.response?.data?.error || 'Image generation failed. Check your OpenAI API key.');
+    }
+    setGenLoading(false);
+  };
+
+  // ── Upload preview to Cloudinary → autofill ToURL ──
+  const handleUseImage = async () => {
+    if (!genPreview) return;
+    setUploadLoading(true);
+    try {
+      const r = await api.post('/admin/upload-to-cloudinary', { imageUrl: genPreview });
+      setForm((f) => ({ ...f, ToURL: r.data.cloudinaryUrl }));
+      setGenPreview(null);
+    } catch (err) {
+      setGenError(err.response?.data?.error || 'Cloudinary upload failed.');
+    }
+    setUploadLoading(false);
+  };
+
+  const handleSavePrompt = async (e) => {
+    e.preventDefault();
+    try {
+      const payload = {
+        ...form,
+        usedcount: parseInt(form.usedcount) || 0,
+      };
       if (editId) {
         await api.put(`/admin/prompts/${editId}`, payload);
       } else {
         await api.post('/admin/prompts', payload);
       }
-      setForm({ title: '', text: '', negative_prompt: '', category: 'travel', tags: '', thumbnail_url: '', images: '' });
-      setEditId(null);
+      resetForm();
       api.get('/admin/prompts').then((r) => setPrompts(r.data));
     } catch (err) {
       alert(err.response?.data?.error || 'Save failed');
     }
   };
 
+  const startEdit = (p) => {
+    setForm({
+      promptdescription: p.promptdescription || '',
+      Categories: p.Categories || '',
+      tags: p.tags || '',
+      FromURL: p.FromURL || '',
+      ToURL: p.ToURL || '',
+      usedcount: p.usedcount || 0,
+    });
+    setEditId(p.PromptId);
+    setShowForm(true);
+    setGenPreview(null);
+    setGenError('');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
   const deletePrompt = async (id) => {
     if (!confirm('Delete this prompt?')) return;
     await api.delete(`/admin/prompts/${id}`);
-    setPrompts((p) => p.filter((x) => x.id !== id));
-  };
-
-  const startEdit = (p) => {
-    setEditId(p.id);
-    setForm({ title: p.title, text: p.text, negative_prompt: p.negative_prompt || '', category: p.category, tags: (p.tags || []).join(', '), thumbnail_url: p.thumbnail_url || '', images: (p.images || []).join(', ') });
+    setPrompts((p) => p.filter((x) => x.PromptId !== id));
   };
 
   const togglePremium = async (id) => {
@@ -76,25 +141,32 @@ export default function Admin() {
     <div className={styles.page}>
       <Navbar />
       <div className={styles.layout}>
+
+        {/* Sidebar */}
         <aside className={styles.sidebar}>
           <div className={styles.sidebarTitle}>Admin Console</div>
           {TABS.map((t) => (
-            <button key={t} className={`${styles.navItem} ${tab === t ? styles.navItemActive : ''}`} onClick={() => setTab(t)}>
+            <button
+              key={t}
+              className={`${styles.navItem} ${tab === t ? styles.navItemActive : ''}`}
+              onClick={() => setTab(t)}
+            >
               {t === 'Dashboard' ? '📊' : t === 'Prompts' ? '🖼️' : '👥'} {t}
             </button>
           ))}
         </aside>
 
         <main className={styles.main}>
-          {/* Dashboard */}
+
+          {/* ── Dashboard ── */}
           {tab === 'Dashboard' && stats && (
             <>
               <h2 className={styles.pageTitle}>Dashboard</h2>
               <div className={styles.metricsGrid}>
                 {[
-                  { label: 'Total Prompts', value: stats.totalPrompts },
-                  { label: 'Total Users', value: stats.totalUsers },
-                  { label: 'Premium Users', value: stats.premiumUsers },
+                  { label: 'Total Prompts',        value: stats.totalPrompts },
+                  { label: 'Total Users',           value: stats.totalUsers },
+                  { label: 'Premium Users',         value: stats.premiumUsers },
                   { label: 'Completed Generations', value: stats.completedRequests },
                 ].map((m) => (
                   <div key={m.label} className={styles.metricCard}>
@@ -106,65 +178,149 @@ export default function Admin() {
             </>
           )}
 
-          {/* Prompts */}
+          {/* ── Prompts ── */}
           {tab === 'Prompts' && (
             <>
-              <h2 className={styles.pageTitle}>{editId ? 'Edit Prompt' : 'Add Prompt'}</h2>
-              <form className={styles.form} onSubmit={savePrompt}>
-                <div className={styles.formRow}>
-                  <div className={styles.field}>
-                    <label className={styles.label}>Title</label>
-                    <input className={styles.input} value={form.title} onChange={set('title')} required />
-                  </div>
-                  <div className={styles.field}>
-                    <label className={styles.label}>Category</label>
-                    <select className={styles.input} value={form.category} onChange={set('category')}>
-                      {['travel', 'music', 'invite', 'love'].map((c) => <option key={c} value={c}>{c}</option>)}
-                    </select>
-                  </div>
-                </div>
-                <div className={styles.field}>
-                  <label className={styles.label}>Prompt Text</label>
-                  <textarea className={styles.textarea} value={form.text} onChange={set('text')} required />
-                </div>
-                <div className={styles.field}>
-                  <label className={styles.label}>Negative Prompt</label>
-                  <textarea className={styles.textarea} style={{ minHeight: 60 }} value={form.negative_prompt} onChange={set('negative_prompt')} />
-                </div>
-                <div className={styles.formRow}>
-                  <div className={styles.field}>
-                    <label className={styles.label}>Tags (comma separated)</label>
-                    <input className={styles.input} value={form.tags} onChange={set('tags')} placeholder="sunset, portrait, cinematic" />
-                  </div>
-                  <div className={styles.field}>
-                    <label className={styles.label}>Thumbnail URL</label>
-                    <input className={styles.input} value={form.thumbnail_url} onChange={set('thumbnail_url')} />
-                  </div>
-                </div>
-                <div className={styles.field}>
-                  <label className={styles.label}>Reference Image URLs (comma separated)</label>
-                  <input className={styles.input} value={form.images} onChange={set('images')} />
-                </div>
-                <div className={styles.formActions}>
-                  <button type="submit" className={styles.btnPrimary}>{editId ? 'Update Prompt' : '+ Add Prompt'}</button>
-                  {editId && <button type="button" className={styles.btnGhost} onClick={() => { setEditId(null); setForm({ title: '', text: '', negative_prompt: '', category: 'travel', tags: '', thumbnail_url: '', images: '' }); }}>Cancel</button>}
-                </div>
-              </form>
+              <div className={styles.pageHeader}>
+                <h2 className={styles.pageTitle}>Prompts</h2>
+                {!showForm && (
+                  <button className={styles.btnPrimary} onClick={() => { resetForm(); setShowForm(true); }}>
+                    + Add Prompt
+                  </button>
+                )}
+              </div>
 
+              {/* Add / Edit Form */}
+              {showForm && (
+                <form className={styles.form} onSubmit={handleSavePrompt}>
+                  <div className={styles.formTitle}>{editId ? '✏️ Edit Prompt' : '➕ New Prompt'}</div>
+
+                  {/* Category + Tags row */}
+                  <div className={styles.formRow}>
+                    <div className={styles.field}>
+                      <label className={styles.label}>Category</label>
+                      <input className={styles.input} value={form.Categories} onChange={set('Categories')} placeholder="e.g. Couples, Travel, Women" required />
+                    </div>
+                    <div className={styles.field}>
+                      <label className={styles.label}>Tags (comma separated)</label>
+                      <input className={styles.input} value={form.tags} onChange={set('tags')} placeholder="portrait, traditional, outdoor" />
+                    </div>
+                  </div>
+
+                  {/* Prompt description */}
+                  <div className={styles.field}>
+                    <label className={styles.label}>Prompt Description</label>
+                    <textarea className={styles.textarea} value={form.promptdescription} onChange={set('promptdescription')} placeholder="Full prompt text used for AI image generation…" required />
+                  </div>
+
+                  {/* From URL (before image) */}
+                  <div className={styles.field}>
+                    <label className={styles.label}>From (Before) Image URL</label>
+                    <input className={styles.input} value={form.FromURL} onChange={set('FromURL')} placeholder="https://res.cloudinary.com/…" />
+                    {form.FromURL && (
+                      <img src={form.FromURL} alt="from" className={styles.urlPreview} onError={(e) => { e.target.style.display = 'none'; }} />
+                    )}
+                  </div>
+
+                  {/* To URL (after image) — AI generated */}
+                  <div className={styles.field}>
+                    <label className={styles.label}>To (After) Image URL</label>
+
+                    {/* Generate button */}
+                    {!genPreview && (
+                      <button
+                        type="button"
+                        className={styles.btnGenerate}
+                        onClick={handleGenerate}
+                        disabled={genLoading}
+                      >
+                        {genLoading ? (
+                          <><span className={styles.spinner} /> Generating image…</>
+                        ) : (
+                          '🤖 Generate Image with AI'
+                        )}
+                      </button>
+                    )}
+
+                    {genError && <div className={styles.genError}>{genError}</div>}
+
+                    {/* Generated image preview */}
+                    {genPreview && (
+                      <div className={styles.genPreviewBox}>
+                        <img src={genPreview} alt="Generated" className={styles.genPreviewImg} />
+                        <div className={styles.genPreviewActions}>
+                          <button type="button" className={styles.btnUse} onClick={handleUseImage} disabled={uploadLoading}>
+                            {uploadLoading ? '⏳ Uploading…' : '✅ Use this Image'}
+                          </button>
+                          <button type="button" className={styles.btnRegenerate} onClick={handleGenerate} disabled={genLoading}>
+                            {genLoading ? '⏳ Generating…' : '🔁 Regenerate'}
+                          </button>
+                          <button type="button" className={styles.btnCancel} onClick={() => { setGenPreview(null); setGenError(''); }}>
+                            ❌ Cancel
+                          </button>
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Show autofilled URL after upload */}
+                    {form.ToURL && !genPreview && (
+                      <div className={styles.toUrlSet}>
+                        <span className={styles.toUrlCheck}>✅ Image uploaded to Cloudinary</span>
+                        <img src={form.ToURL} alt="to" className={styles.urlPreview} onError={(e) => { e.target.style.display = 'none'; }} />
+                        <input className={styles.input} value={form.ToURL} onChange={set('ToURL')} style={{ marginTop: 8 }} />
+                        <button type="button" className={styles.btnRegenerateSmall} onClick={handleGenerate} disabled={genLoading}>
+                          🔁 Regenerate new image
+                        </button>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Used count */}
+                  <div className={styles.field} style={{ maxWidth: 200 }}>
+                    <label className={styles.label}>Used Count</label>
+                    <input className={styles.input} type="number" value={form.usedcount} onChange={set('usedcount')} min={0} />
+                  </div>
+
+                  <div className={styles.formActions}>
+                    <button type="submit" className={styles.btnPrimary}>
+                      {editId ? '💾 Update Prompt' : '💾 Save Prompt'}
+                    </button>
+                    <button type="button" className={styles.btnGhost} onClick={resetForm}>Cancel</button>
+                  </div>
+                </form>
+              )}
+
+              {/* Prompts table */}
               <div className={styles.tableWrap}>
                 <table className={styles.table}>
-                  <thead><tr><th>Title</th><th>Category</th><th>Clicks</th><th>Status</th><th>Actions</th></tr></thead>
+                  <thead>
+                    <tr>
+                      <th>ID</th>
+                      <th>Category</th>
+                      <th>Tags</th>
+                      <th>From</th>
+                      <th>To</th>
+                      <th>Uses</th>
+                      <th>Actions</th>
+                    </tr>
+                  </thead>
                   <tbody>
                     {prompts.map((p) => (
-                      <tr key={p.id}>
-                        <td className={styles.tdBold}>{p.title}</td>
-                        <td><span className={styles.pill} style={{ textTransform: 'capitalize' }}>{p.category}</span></td>
-                        <td>{(p.click_count || 0).toLocaleString()}</td>
-                        <td><span className={p.is_active ? styles.pillLive : styles.pillDraft}>{p.is_active ? 'Live' : 'Draft'}</span></td>
+                      <tr key={p.PromptId}>
+                        <td className={styles.tdBold}>#{p.PromptId}</td>
+                        <td><span className={styles.pill}>{p.Categories}</span></td>
+                        <td style={{ fontSize: 11, color: 'var(--pf-text-3)' }}>{(p.tags || '').slice(0, 30)}</td>
+                        <td>
+                          {p.FromURL && <img src={p.FromURL} alt="from" className={styles.tableThumb} onError={(e) => { e.target.style.display = 'none'; }} />}
+                        </td>
+                        <td>
+                          {p.ToURL && <img src={p.ToURL} alt="to" className={styles.tableThumb} onError={(e) => { e.target.style.display = 'none'; }} />}
+                        </td>
+                        <td>{p.usedcount || 0}</td>
                         <td>
                           <div className={styles.actions}>
                             <button className={styles.actBtn} onClick={() => startEdit(p)}>Edit</button>
-                            <button className={styles.actBtn} style={{ color: 'var(--pf-coral)' }} onClick={() => deletePrompt(p.id)}>Delete</button>
+                            <button className={styles.actBtn} style={{ color: 'var(--pf-coral)' }} onClick={() => deletePrompt(p.PromptId)}>Delete</button>
                           </div>
                         </td>
                       </tr>
@@ -175,7 +331,7 @@ export default function Admin() {
             </>
           )}
 
-          {/* Users */}
+          {/* ── Users ── */}
           {tab === 'Users' && (
             <>
               <h2 className={styles.pageTitle}>Users</h2>
@@ -202,6 +358,7 @@ export default function Admin() {
               </div>
             </>
           )}
+
         </main>
       </div>
     </div>

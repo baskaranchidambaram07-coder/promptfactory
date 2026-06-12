@@ -183,6 +183,7 @@ const getCollection = async (req, res) => {
 const createCollectionItem = async (req, res) => {
   try {
     const { promptdescription, FromURL, ToURL, Categories, tags, usedcount } = req.body;
+    console.log('[createCollectionItem] body:', req.body);
     const payload = {
       promptdescription: promptdescription || null,
       FromURL: FromURL || null,
@@ -192,9 +193,11 @@ const createCollectionItem = async (req, res) => {
       usedcount: usedcount || 0,
     };
     const { data, error } = await supabase.from('PromptCollection').insert(payload).select().single();
+    console.log('[createCollectionItem] result:', { data, error });
     if (error) throw error;
     res.status(201).json(data);
   } catch (err) {
+    console.error('[createCollectionItem] error:', err.message);
     res.status(500).json({ error: err.message });
   }
 };
@@ -386,7 +389,7 @@ const upsertLLMKey = async (req, res) => {
     let result;
     if (existing) {
       const updates = { is_active: is_active !== undefined ? is_active : true, updated_at: new Date().toISOString() };
-      if (api_key && !api_key.startsWith('••')) updates.api_key = api_key;
+      if (api_key && !api_key.startsWith('\u2022\u2022')) updates.api_key = api_key;
       if (notes !== undefined) updates.notes = notes;
       const { data, error } = await supabase
         .from('llm_keys').update(updates).eq('id', existing.id).select('id,provider,is_active,notes,created_at,updated_at').single();

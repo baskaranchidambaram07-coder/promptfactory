@@ -15,8 +15,15 @@ const {
   getPrompts, createPrompt, updatePrompt, deletePrompt,
 } = require('../controllers/adminController');
 
+const { generateImageForPrompt, uploadToCloudinary, listAvailableModels } = require('../controllers/adminImageController');
+
 // All admin data routes require a valid admin-portal JWT
 router.use(requireAdminAuth);
+
+/* ── AI Image Generation ── */
+router.post('/generate-image', generateImageForPrompt);
+router.post('/upload-to-cloudinary', uploadToCloudinary);
+router.get('/debug-models', listAvailableModels);
 
 /* ── Admin Portal User Management (admin role only) ── */
 router.get('/admin-users',             requireRole('admin'), getAdminUsers);
